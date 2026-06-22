@@ -1,0 +1,31 @@
+# === Secrets — NEVER commit ===
+.credentials.json
+**/.credentials.json
+settings.local.json
+.claude/settings.local.json
+
+# === Runtime / machine-local state ===
+.claude/backups/
+.claude/cache/
+.claude/paste-cache/
+.claude/daemon/
+.claude/daemon.log
+.claude/file-history/
+.claude/history.jsonl
+.claude/ide/
+.claude/jobs/
+.claude/projects/
+.claude/sessions/
+.claude/session-env/
+.claude/shell-snapshots/
+.claude/mcp-needs-auth-cache.json
+.claude/stats-cache.json
+.claude/.last-cleanup
+.claude/plugins/
+.claude/plans/
+
+# === OS / editor noise ===
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.bak
