@@ -29,6 +29,7 @@ Do all of this silently before presenting anything.
 - Does any single file's diff contain several *distinct* changes (a feature + a refactor + a rename) that I'd otherwise lump into one vague line? List each separately.
 - Are any untracked files/folders real work (docs, plans, notes) rather than runtime data?
 - Enumerate the **distinct bodies of work** as a list. If that list came from memory rather than the diffs, STOP and re-read the diffs.
+- Did anything this session **generalize beyond this project** — a reusable command/skill, a global CLAUDE.md rule, or a client-agnostic lesson? Note it for the promote step (Part C).
 
 This self-check is the fix for the single most common failure of this skill: under-reporting because the summary was written from memory instead of the diff.
 
@@ -86,6 +87,8 @@ Plain English — what a non-engineer could follow. No code-path dumps. Two shor
 **A — What changed since the last push.** The distinct bodies of work from the self-check (each as its own bullet, even when several live in one file), which files they touch, and how many unpushed commits exist. Flag anything that looks like it shouldn't be committed (`.env`, large binaries, temp files), and anything reverted.
 
 **B — What I'll change in CLAUDE.md.** The surgical edits: version bump (follow project convention), backlog status, architecture/data-flow notes, key-files table, config section. Be explicit about what you are **not** touching. Do not infer changes that aren't in the diff.
+
+**C — Promote to the global toolkit (cc-toolkit)?** Anything from this session that generalizes beyond this project: a reusable command → `commands/`, a skill → `skills/`, a refined global behaviour → global `CLAUDE.md`, or a client-agnostic lesson → `playbooks/`. List each as a one-line candidate with its target. **Flag-only:** never auto-push to cc-toolkit and never add a gate for it — the user promotes manually. If nothing generalizes, say "nothing to promote" and move on.
 
 Then ONE gate, one sentence: *"Confirm to apply, or flag anything to fix."*
 
