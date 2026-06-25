@@ -1,0 +1,4 @@
+# Normalise line endings so fresh clones match the authored (LF) files.
+# Without this, core.autocrlf=true checks files out as CRLF on Windows,
+# which makes the setup.ps1 audit (and any byte-diff) read as false drift.
+* text=auto eol=lf

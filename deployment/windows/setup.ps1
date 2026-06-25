@@ -70,6 +70,25 @@ function Get-ItemFiles($base, $item) {
     }
 }
 
+# ── Content hash that ignores line endings (CRLF vs LF) ─────────────
+# A raw byte hash flags a CRLF-checked-out clone as "different" from an
+# LF working copy even when the content is identical. The audit should
+# report real drift only, so we normalise line endings before hashing.
+# Binary files (any NUL byte) fall back to a raw byte hash.
+function Get-ContentHash($path) {
+    $bytes = [System.IO.File]::ReadAllBytes($path)
+    if ([Array]::IndexOf($bytes, [byte]0) -ge 0) {
+        $toHash = $bytes
+    } else {
+        $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+        $norm = ($text -replace "`r`n", "`n") -replace "`r", "`n"
+        $toHash = [System.Text.Encoding]::UTF8.GetBytes($norm)
+    }
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try { return [System.BitConverter]::ToString($sha.ComputeHash($toHash)) }
+    finally { $sha.Dispose() }
+}
+
 # ── Detect an existing Claude Code config ───────────────────────────
 $existing = $false
 if (Test-Path $ClaudeHome) {
@@ -92,7 +111,7 @@ if ($existing -and -not $Force) {
             $dest = Join-Path $ClaudeHome $f.Rel
             if (-not (Test-Path $dest)) {
                 $additions += $f.Rel
-            } elseif ((Get-FileHash $f.Full).Hash -ne (Get-FileHash $dest).Hash) {
+            } elseif ((Get-ContentHash $f.Full) -ne (Get-ContentHash $dest)) {
                 $conflicts += $f.Rel
             } else { $insync++ }
         }
