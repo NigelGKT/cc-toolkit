@@ -2,6 +2,22 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.1.0] — 2026-06-25
+
+### Fixed
+- **`setup.ps1` audit was line-ending-sensitive.** It compared files with a raw byte
+  hash (`Get-FileHash`), so a fresh clone checked out as CRLF read as 13 false conflicts
+  against an LF working copy. The audit now normalises line endings before hashing
+  (binary files fall back to a raw hash), so it reports real content drift only.
+
+### Added
+- **`.gitattributes`** (`* text=auto eol=lf`) — fresh clones check out LF, matching the
+  authored files, so byte-diffs and the audit stay consistent across machines.
+
+### Notes
+- Surfaced by the Step 7 acid test: deploying from a fresh clone produced a wall of
+  false conflicts that were purely CRLF vs LF.
+
 ## [1.0.0] — 2026-06-25
 
 First consolidated, deployable release. The toolkit is now the single source of truth
