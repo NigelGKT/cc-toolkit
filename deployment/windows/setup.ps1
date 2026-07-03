@@ -44,18 +44,51 @@ Write-Host "  repo : $RepoRoot"
 Write-Host "  dest : $ClaudeHome"
 Write-Host ""
 
-# ── Prerequisite check (report only; never auto-install) ────────────
-function Test-Prereq($name, $cmd, $hint) {
-    if (Get-Command $cmd -ErrorAction SilentlyContinue) {
-        Write-Host "  [ok]   $name" -ForegroundColor Green
+# ── Prerequisite check (git: report only; Node.js + Claude Code: auto-install) ──
+Write-Host "Prerequisites:"
+
+# git — report only (requires manual install / admin judgment)
+if (Get-Command git -ErrorAction SilentlyContinue) {
+    Write-Host "  [ok]   git" -ForegroundColor Green
+} else {
+    Write-Host "  [miss] git  ->  install from https://git-scm.com" -ForegroundColor Yellow
+}
+
+# Node.js — auto-install via winget if missing
+if (Get-Command node -ErrorAction SilentlyContinue) {
+    Write-Host "  [ok]   Node.js" -ForegroundColor Green
+} else {
+    Write-Host "  [miss] Node.js — attempting install via winget..." -ForegroundColor Yellow
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
+        $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path', 'User')
+        if (Get-Command node -ErrorAction SilentlyContinue) {
+            Write-Host "  [ok]   Node.js (just installed)" -ForegroundColor Green
+        } else {
+            Write-Host "  [warn] Node.js installed — restart terminal then re-run this script." -ForegroundColor Yellow
+        }
     } else {
-        Write-Host "  [miss] $name  ->  $hint" -ForegroundColor Yellow
+        Write-Host "  [miss] Node.js  ->  install LTS from https://nodejs.org  (winget unavailable)" -ForegroundColor Yellow
     }
 }
-Write-Host "Prerequisites:"
-Test-Prereq 'git'         'git'    'install from https://git-scm.com'
-Test-Prereq 'Node.js'     'node'   'install LTS from https://nodejs.org'
-Test-Prereq 'Claude Code' 'claude' 'npm install -g @anthropic-ai/claude-code'
+
+# Claude Code — auto-install via npm if missing
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    Write-Host "  [ok]   Claude Code" -ForegroundColor Green
+} else {
+    if (Get-Command npm -ErrorAction SilentlyContinue) {
+        Write-Host "  [miss] Claude Code — installing via npm..." -ForegroundColor Yellow
+        npm install -g @anthropic-ai/claude-code
+        if (Get-Command claude -ErrorAction SilentlyContinue) {
+            Write-Host "  [ok]   Claude Code (just installed)" -ForegroundColor Green
+        } else {
+            Write-Host "  [warn] Claude Code installed — restart terminal then re-run this script." -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  [miss] Claude Code  ->  install Node.js first, then: npm install -g @anthropic-ai/claude-code" -ForegroundColor Yellow
+    }
+}
+
 Write-Host ""
 
 # ── Helper: enumerate the files under a toolkit item (file or dir) ──
