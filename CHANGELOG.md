@@ -2,6 +2,20 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.2.0] — 2026-07-05
+
+### Added
+- **`deployment/unix/setup.sh`** — Linux/macOS port of `setup.ps1`. Same audit-or-deploy
+  behaviour (clean → deploy; existing config → audit; `--force` → backup then deploy),
+  CRLF-normalised hashing, and secret exclusions. Node.js is auto-installed via **nvm**
+  (`nvm install --lts` — no sudo, self-sourced for the run); Claude Code via `npm install -g`.
+  Unblocks the VPS track.
+- **Auto-install in `setup.ps1`** — a missing Node.js is installed via winget and Claude Code
+  via npm, so a fresh Windows machine self-provisions instead of only reporting what's missing.
+
+### Notes
+- `cleanup.ps1` / `cleanup.sh` remain deferred until the first client-machine clean-exit need.
+
 ## [1.1.0] — 2026-06-25
 
 ### Fixed
