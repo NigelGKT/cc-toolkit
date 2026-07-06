@@ -33,7 +33,8 @@ $RepoRoot   = (Resolve-Path (Join-Path $ScriptDir '..\..')).Path
 $ClaudeHome = Join-Path $env:USERPROFILE '.claude'
 
 # Toolkit items this repo deploys (relative to repo root).
-$ToolkitItems = @('CLAUDE.md', 'settings.json', 'skills', 'playbooks')
+# 'brain' is the global-brain s.wiki vault (playbooks are folded inside it).
+$ToolkitItems = @('CLAUDE.md', 'settings.json', 'skills', 'brain')
 
 # Things we must NEVER deploy or overwrite (secrets / local overrides).
 $NeverTouch = @('.credentials.json', 'settings.local.json')

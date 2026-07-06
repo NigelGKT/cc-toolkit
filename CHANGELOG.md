@@ -2,6 +2,28 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.3.0] — 2026-07-06
+
+### Added
+- **`brain/`** — the global brain: an `s.wiki` vault of cross-project, distilled patterns and
+  client-agnostic lessons, deployed to `~/.claude/brain/` on every machine. Seeded with three
+  pattern-concepts (`fifo-vs-vwap-cost-basis`, `convert-at-edge-display-lens`,
+  `cost-layer-as-derived-view`) promoted from the Propex PTA wiki — scrubbed to patterns with
+  `origin:` provenance in frontmatter. Mirrors PTA's schema + graph colour-group system.
+- **`deployment/windows/cleanup.ps1`** + **`deployment/unix/cleanup.sh`** — clean-exit scripts.
+  Dry-run by default; `-Force` removes `~/.claude` (backup first) and unsets `ANTHROPIC_API_KEY`;
+  `-Force -NoBackup` is the client-exit mode that leaves no residue.
+
+### Changed
+- **`setup.ps1` / `setup.sh`** now deploy `brain` as a toolkit item. `playbooks/` is folded into
+  the brain (`brain/playbooks/`); the old top-level `playbooks/` is superseded (delete manually).
+- **`s.wrap-up` Part C** now routes promote candidates to `brain/concepts/` and `brain/playbooks/`,
+  with a scrub-and-record-`origin:` step.
+
+### Notes
+- Provenance `origin:` names real clients and the brain deploys everywhere; the cross-engagement
+  confidentiality question is deliberately deferred until it's a live concern.
+
 ## [1.2.0] — 2026-07-05
 
 ### Added
