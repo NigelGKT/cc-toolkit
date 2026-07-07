@@ -44,10 +44,10 @@ origin: <project / client> (<context>, <year>)   # e.g. Propex Trading (PNL anal
 `origin` is the only place a page names where the knowledge came from. The prose itself
 stays client-agnostic so a concept reads as a general pattern.
 
-> **Deferred:** these `origin:` values name real clients and the brain currently deploys
-> everywhere. When client confidentiality across engagements becomes a live concern,
-> revisit — options are an aliased codename + local-only key map, or a `-SkipBrain` deploy
-> switch for client machines. Not addressed yet by choice.
+> **Decided (2026-07-07):** `origin:` values persist as-is, naming real clients — cross-engagement
+> confidentiality is **not** a concern for this brain by choice. No aliasing, no key map, no
+> `-SkipBrain` switch. If that posture ever changes, the earlier options (aliased codename +
+> local-only key map, or a `-SkipBrain` deploy switch for client machines) remain available.
 
 ## Page types
 
