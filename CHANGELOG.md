@@ -2,6 +2,26 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.4.0] — 2026-07-08
+
+### Added
+- **`skills/s.goal-run/`** — harvested from a machine that had it locally but had never been
+  pushed up. Now rides to every machine via deploy.
+
+### Fixed
+- **`setup.ps1` / `cleanup.ps1`** — ASCII-cleaned the box-drawing and em-dash characters in the
+  output strings so the scripts parse under **Windows PowerShell 5.1**. They were UTF-8 without a
+  BOM, which 5.1 reads as the ANSI codepage — corrupting the multi-byte characters and throwing a
+  parser error (`Unexpected token '}'`). Many client machines ship only 5.1, so this was a real
+  deploy blocker, not cosmetic. Output text only; no logic change.
+
+### Changed
+- **Confidentiality decision made** — `origin:` values persist as-is (naming real clients);
+  cross-engagement confidentiality is deliberately *not* a concern for the brain. Supersedes the
+  deferred note from 1.3.0; recorded in `brain/wiki-schema.md`.
+- **Top-level `playbooks/` removed** — superseded by `brain/playbooks/` (was flagged for manual
+  deletion in 1.3.0; now done).
+
 ## [1.3.0] — 2026-07-06
 
 ### Added
