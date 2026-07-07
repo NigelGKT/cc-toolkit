@@ -27,7 +27,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# ── Resolve locations ───────────────────────────────────────────────
+# -- Resolve locations -----------------------------------------------
 $ScriptDir  = $PSScriptRoot
 $RepoRoot   = (Resolve-Path (Join-Path $ScriptDir '..\..')).Path
 $ClaudeHome = Join-Path $env:USERPROFILE '.claude'
@@ -45,45 +45,45 @@ Write-Host "  repo : $RepoRoot"
 Write-Host "  dest : $ClaudeHome"
 Write-Host ""
 
-# ── Prerequisite check (git: report only; Node.js + Claude Code: auto-install) ──
+# -- Prerequisite check (git: report only; Node.js + Claude Code: auto-install) --
 Write-Host "Prerequisites:"
 
-# git — report only (requires manual install / admin judgment)
+# git - report only (requires manual install / admin judgment)
 if (Get-Command git -ErrorAction SilentlyContinue) {
     Write-Host "  [ok]   git" -ForegroundColor Green
 } else {
     Write-Host "  [miss] git  ->  install from https://git-scm.com" -ForegroundColor Yellow
 }
 
-# Node.js — auto-install via winget if missing
+# Node.js - auto-install via winget if missing
 if (Get-Command node -ErrorAction SilentlyContinue) {
     Write-Host "  [ok]   Node.js" -ForegroundColor Green
 } else {
-    Write-Host "  [miss] Node.js — attempting install via winget..." -ForegroundColor Yellow
+    Write-Host "  [miss] Node.js - attempting install via winget..." -ForegroundColor Yellow
     if (Get-Command winget -ErrorAction SilentlyContinue) {
         winget install OpenJS.NodeJS.LTS --silent --accept-package-agreements --accept-source-agreements
         $env:Path = [System.Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path', 'User')
         if (Get-Command node -ErrorAction SilentlyContinue) {
             Write-Host "  [ok]   Node.js (just installed)" -ForegroundColor Green
         } else {
-            Write-Host "  [warn] Node.js installed — restart terminal then re-run this script." -ForegroundColor Yellow
+            Write-Host "  [warn] Node.js installed - restart terminal then re-run this script." -ForegroundColor Yellow
         }
     } else {
         Write-Host "  [miss] Node.js  ->  install LTS from https://nodejs.org  (winget unavailable)" -ForegroundColor Yellow
     }
 }
 
-# Claude Code — auto-install via npm if missing
+# Claude Code - auto-install via npm if missing
 if (Get-Command claude -ErrorAction SilentlyContinue) {
     Write-Host "  [ok]   Claude Code" -ForegroundColor Green
 } else {
     if (Get-Command npm -ErrorAction SilentlyContinue) {
-        Write-Host "  [miss] Claude Code — installing via npm..." -ForegroundColor Yellow
+        Write-Host "  [miss] Claude Code - installing via npm..." -ForegroundColor Yellow
         npm install -g @anthropic-ai/claude-code
         if (Get-Command claude -ErrorAction SilentlyContinue) {
             Write-Host "  [ok]   Claude Code (just installed)" -ForegroundColor Green
         } else {
-            Write-Host "  [warn] Claude Code installed — restart terminal then re-run this script." -ForegroundColor Yellow
+            Write-Host "  [warn] Claude Code installed - restart terminal then re-run this script." -ForegroundColor Yellow
         }
     } else {
         Write-Host "  [miss] Claude Code  ->  install Node.js first, then: npm install -g @anthropic-ai/claude-code" -ForegroundColor Yellow
@@ -92,7 +92,7 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 
 Write-Host ""
 
-# ── Helper: enumerate the files under a toolkit item (file or dir) ──
+# -- Helper: enumerate the files under a toolkit item (file or dir) --
 function Get-ItemFiles($base, $item) {
     $p = Join-Path $base $item
     if (-not (Test-Path $p)) { return @() }
@@ -104,7 +104,7 @@ function Get-ItemFiles($base, $item) {
     }
 }
 
-# ── Content hash that ignores line endings (CRLF vs LF) ─────────────
+# -- Content hash that ignores line endings (CRLF vs LF) -------------
 # A raw byte hash flags a CRLF-checked-out clone as "different" from an
 # LF working copy even when the content is identical. The audit should
 # report real drift only, so we normalise line endings before hashing.
@@ -123,7 +123,7 @@ function Get-ContentHash($path) {
     finally { $sha.Dispose() }
 }
 
-# ── Detect an existing Claude Code config ───────────────────────────
+# -- Detect an existing Claude Code config ---------------------------
 $existing = $false
 if (Test-Path $ClaudeHome) {
     foreach ($item in $ToolkitItems) {
@@ -131,7 +131,7 @@ if (Test-Path $ClaudeHome) {
     }
 }
 
-# ── EXISTING CONFIG + no -Force: audit + harvest report, change nothing ──
+# -- EXISTING CONFIG + no -Force: audit + harvest report, change nothing --
 if ($existing -and -not $Force) {
     Write-Host "Existing Claude Code config detected at $ClaudeHome" -ForegroundColor Yellow
     Write-Host "AUDIT MODE - nothing will be changed. Reviewing differences..." -ForegroundColor Yellow
@@ -186,7 +186,7 @@ if ($existing -and -not $Force) {
     return
 }
 
-# ── Lightweight backup of exactly the toolkit files we may overwrite ─
+# -- Lightweight backup of exactly the toolkit files we may overwrite -
 if (-not (Test-Path $ClaudeHome)) {
     New-Item -ItemType Directory -Path $ClaudeHome -Force | Out-Null
 }
@@ -203,7 +203,7 @@ foreach ($item in $ToolkitItems) {
 }
 if ($backedUp) { Write-Host "Backed up existing toolkit files -> $backup" -ForegroundColor Cyan }
 
-# ── Deploy toolkit items (merge dirs; never secrets) ────────────────
+# -- Deploy toolkit items (merge dirs; never secrets) ----------------
 foreach ($item in $ToolkitItems) {
     $src = Join-Path $RepoRoot $item
     if (-not (Test-Path $src)) { continue }

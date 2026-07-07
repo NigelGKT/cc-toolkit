@@ -10,8 +10,8 @@
   - -Force: actually removes ~/.claude and unsets ANTHROPIC_API_KEY (process + User
     scope). A timestamped backup is taken first UNLESS -NoBackup is given.
   - -Force -NoBackup: true client-exit. No backup is left on the machine. Removes the
-    whole ~/.claude — config, secrets, AND session history (which can hold the client's
-    sensitive prompts) — so nothing of yours remains.
+    whole ~/.claude - config, secrets, AND session history (which can hold the client's
+    sensitive prompts) - so nothing of yours remains.
 
   Why the whole directory: a professional hand-back must leave no config, no stored
   credentials, and no transcript of the work. Removing ~/.claude achieves all three;
@@ -44,12 +44,12 @@ Write-Host "GKT cc-toolkit cleanup" -ForegroundColor Cyan
 Write-Host "  target : $ClaudeHome"
 Write-Host ""
 
-# ── Inspect current state ───────────────────────────────────────────
+# -- Inspect current state -------------------------------------------
 $homeExists = Test-Path $ClaudeHome
 $keyProcess = [bool]$env:ANTHROPIC_API_KEY
 $keyUser    = [bool][Environment]::GetEnvironmentVariable($KeyName, 'User')
 
-# ── DRY RUN (no -Force): report only, change nothing ────────────────
+# -- DRY RUN (no -Force): report only, change nothing ----------------
 if (-not $Force) {
     Write-Host "DRY RUN - nothing will be changed." -ForegroundColor Yellow
     Write-Host ""
@@ -71,7 +71,7 @@ if (-not $Force) {
     return
 }
 
-# ── FORCE: back up (unless -NoBackup), then remove ──────────────────
+# -- FORCE: back up (unless -NoBackup), then remove ------------------
 if ($homeExists) {
     if (-not $NoBackup) {
         $stamp  = Get-Date -Format 'yyyyMMdd-HHmmss'
@@ -87,7 +87,7 @@ if ($homeExists) {
     Write-Host "  ~/.claude already absent - nothing to remove." -ForegroundColor Green
 }
 
-# ── Unset the API key (process + persisted User scope) ──────────────
+# -- Unset the API key (process + persisted User scope) --------------
 if ($keyProcess) {
     Remove-Item Env:$KeyName -ErrorAction SilentlyContinue
     Write-Host "  unset: $KeyName (process scope)" -ForegroundColor Green
@@ -97,7 +97,7 @@ if ($keyUser) {
     Write-Host "  unset: $KeyName (User scope - persisted)" -ForegroundColor Green
 }
 
-# ── Verify + report ─────────────────────────────────────────────────
+# -- Verify + report -------------------------------------------------
 Write-Host ""
 $stillThere = Test-Path $ClaudeHome
 $keyStill   = [bool]$env:ANTHROPIC_API_KEY -or [bool][Environment]::GetEnvironmentVariable($KeyName, 'User')
