@@ -71,6 +71,26 @@ if (-not $Force) {
     return
 }
 
+# -- HUMAN GATE: -Force must be driven by a person at a real keyboard ---
+# This is destructive (removes all of ~/.claude). Two guards must both pass:
+#   1. The session must be interactive. If stdin is redirected - the signature
+#      of an automated / agent / piped shell - we refuse outright. An assistant
+#      cannot satisfy this; it has no interactive TTY.
+#   2. The operator must type this machine's name. Muscle-memory 'y' won't do.
+# Either guard failing aborts with zero changes.
+if ([Console]::IsInputRedirected) {
+    Write-Host "REFUSED: cleanup -Force requires an interactive terminal." -ForegroundColor Red
+    Write-Host "stdin is redirected (automated / non-interactive shell). Nothing was changed." -ForegroundColor Red
+    exit 3
+}
+$expected = $env:COMPUTERNAME
+Write-Host "This PERMANENTLY removes ~/.claude on '$expected' (config, secrets, session history)." -ForegroundColor Yellow
+$typed = Read-Host "Type this machine's name '$expected' to confirm"
+if ($typed -ne $expected) {
+    Write-Host "Confirmation did not match. Aborted - nothing was changed." -ForegroundColor Red
+    exit 3
+}
+
 # -- FORCE: back up (unless -NoBackup), then remove ------------------
 if ($homeExists) {
     if (-not $NoBackup) {

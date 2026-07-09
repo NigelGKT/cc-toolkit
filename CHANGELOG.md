@@ -2,6 +2,23 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.6.0] — 2026-07-09
+
+### Added
+- **Cleanup gate — defense in depth against an accidental `cleanup.ps1 -Force`.** The cleanup
+  scripts wipe all of `~/.claude` (config, secrets, session history); a mistaken or automated
+  invocation had nothing standing in its way. Two independent guards now do:
+  - **Layer 1 — harness deny.** `settings.json` gains a `permissions.deny` block matching
+    `cleanup.ps1` / `cleanup.sh` under both the Bash and PowerShell tools. An assistant that
+    tries to run cleanup is blocked at the tool boundary and the operator gets a permission
+    prompt it cannot self-approve. Rides to every machine via deploy.
+  - **Layer 2 — in-script human gate.** `-Force` / `--force` now refuses to run when stdin is
+    non-interactive (`[Console]::IsInputRedirected` / `! -t 0` — the signature of an automated
+    or piped shell) and, when interactive, requires the operator to type the machine's own name
+    (`$env:COMPUTERNAME` / `hostname`) to proceed. Either guard failing aborts with zero changes.
+    This is the hard guarantee: it holds regardless of caller, and an assistant has no TTY to
+    satisfy it.
+
 ## [1.5.0] — 2026-07-09
 
 ### Changed

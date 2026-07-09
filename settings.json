@@ -2,5 +2,13 @@
   "model": "opus",
   "agentPushNotifEnabled": true,
   "inputNeededNotifEnabled": true,
-  "effortLevel": "max"
+  "effortLevel": "max",
+  "permissions": {
+    "deny": [
+      "Bash(*cleanup.ps1*)",
+      "Bash(*cleanup.sh*)",
+      "PowerShell(*cleanup.ps1*)",
+      "PowerShell(*cleanup.sh*)"
+    ]
+  }
 }

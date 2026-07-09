@@ -86,6 +86,27 @@ if [ "$FORCE" -eq 0 ]; then
   return 0 2>/dev/null || exit 0
 fi
 
+# ── HUMAN GATE: --force must be driven by a person at a real keyboard ──
+# This is destructive (removes all of ~/.claude). Two guards must both pass:
+#   1. The session must be interactive. If stdin is not a TTY - the signature
+#      of an automated / agent / piped shell - we refuse outright. An assistant
+#      cannot satisfy this; it has no interactive terminal.
+#   2. The operator must type this machine's name. Muscle-memory 'y' won't do.
+# Either guard failing aborts with zero changes.
+if [ ! -t 0 ]; then
+  sayc "$C_RED" "REFUSED: cleanup --force requires an interactive terminal."
+  sayc "$C_RED" "stdin is not a TTY (automated / non-interactive shell). Nothing was changed."
+  return 3 2>/dev/null || exit 3
+fi
+expected="$(hostname)"
+sayc "$C_YELLOW" "This PERMANENTLY removes ~/.claude on '$expected' (config, secrets, session history)."
+printf "Type this machine's name '%s' to confirm: " "$expected"
+read -r typed
+if [ "$typed" != "$expected" ]; then
+  sayc "$C_RED" "Confirmation did not match. Aborted - nothing was changed."
+  return 3 2>/dev/null || exit 3
+fi
+
 # ── FORCE: back up (unless --no-backup), then remove ────────────────
 if [ "$home_exists" -eq 1 ]; then
   if [ "$NO_BACKUP" -eq 0 ]; then
