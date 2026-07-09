@@ -2,7 +2,7 @@
 
 This file specializes the `s.wiki` skill for the **global brain** — the cross-project,
 cross-client knowledge well that lives in `cc-toolkit` and deploys to every machine via
-`setup.ps1` / `setup.sh` (lands at `~/.claude/brain/`). Edit freely; the skill reads this
+`setup.ps1` / `setup.sh` (lands at `~/.claude/cc-toolkit-wiki-brain/`). Edit freely; the skill reads this
 on every activation.
 
 Default conventions (folder layout, page types, frontmatter, citation rules) live in
@@ -18,7 +18,7 @@ every project's wiki brain feeds its best concepts up here, scrubbed of specific
 knowledge rides to every machine and every future engagement.
 
 **This is the source of truth.** Curate it in the `cc-toolkit` repo clone, commit, push,
-then redeploy. **Never edit the deployed `~/.claude/brain/` directly** — that's a deploy
+then redeploy. **Never edit the deployed `~/.claude/cc-toolkit-wiki-brain/` directly** — that's a deploy
 target, like all other toolkit config.
 
 ## What belongs here / what does NOT
@@ -94,9 +94,9 @@ When adding new folders/page types, insert a group **above** the source/raw catc
 ## Flows (how the brain lives)
 
 - **Promote (in)** — `s.wrap-up` Part C flags a generalizable concept/lesson at session end.
-  You copy it from the project wiki into `brain/`, scrub it, set `origin:`, re-link, commit, push.
+  You copy it from the project wiki into `cc-toolkit-wiki-brain/`, scrub it, set `origin:`, re-link, commit, push.
 - **Query (out)** — before solving something cold, ask the brain: *"what does my brain say
-  about X"* → `s.wiki` query against `~/.claude/brain/`.
+  about X"* → `s.wiki` query against `~/.claude/cc-toolkit-wiki-brain/`.
 - **Lint (maintain)** — periodic `s.wiki` health-check for contradictions, stale claims, orphans.
 
 ## Notes to the skill

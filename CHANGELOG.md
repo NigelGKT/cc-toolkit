@@ -2,6 +2,21 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.5.0] — 2026-07-09
+
+### Changed
+- **`brain/` renamed to `cc-toolkit-wiki-brain/`** — clearer, self-describing folder name.
+  The deploy contract keys off the folder name, so every path reference was updated in lockstep:
+  `setup.ps1` / `setup.sh` (`ToolkitItems`), `wiki-schema.md`, `README.md`, and `s.wrap-up`
+  Part C promote targets. Content unchanged — git tracked it as pure renames. Deploys to
+  `~/.claude/cc-toolkit-wiki-brain/` from now on.
+
+### Fixed
+- **`.gitignore` — Obsidian vault hygiene.** The vault's volatile UI/app state
+  (`workspace.json`, `app.json`, `appearance.json`, `core-plugins.json`) was being tracked and
+  churning on every session. Now ignored via `**/.obsidian/*`, keeping only `graph.json` (the
+  colour-group definitions worth versioning).
+
 ## [1.4.0] — 2026-07-08
 
 ### Added

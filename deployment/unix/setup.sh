@@ -48,8 +48,8 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 CLAUDE_HOME="$HOME/.claude"
 
 # Toolkit items this repo deploys (relative to repo root).
-# 'brain' is the global-brain s.wiki vault (playbooks are folded inside it).
-TOOLKIT_ITEMS=(CLAUDE.md settings.json skills brain)
+# 'cc-toolkit-wiki-brain' is the global-brain s.wiki vault (playbooks are folded inside it).
+TOOLKIT_ITEMS=(CLAUDE.md settings.json skills cc-toolkit-wiki-brain)
 
 # Things we must NEVER deploy or overwrite (secrets / local overrides).
 NEVER_TOUCH=(.credentials.json settings.local.json)
