@@ -2,6 +2,15 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.7.0] — 2026-07-09
+
+### Added
+- **`cc-toolkit-wiki-brain/playbooks/cc-toolkit-deploy-lifecycle.md`** — the toolkit's own
+  runbook as the first brain playbook: a Mermaid flowchart of the full lifecycle (spin up →
+  work & compound → clean exit → VPS) plus copy-paste command runbooks for each leg, the
+  `-Force` safety rationale, and the deploy invariants. Fetch it from the brain before
+  running setup instead of re-deriving the flow. `index.md` links it.
+
 ## [1.6.0] — 2026-07-09
 
 ### Added

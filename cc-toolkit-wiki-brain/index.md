@@ -1,7 +1,7 @@
 # Global Brain — Index
 
 The cross-project knowledge well. Deploys to every machine via `cc-toolkit`.
-Last updated: 2026-07-06.
+Last updated: 2026-07-09.
 
 ## Concepts
 
@@ -11,7 +11,7 @@ Last updated: 2026-07-06.
 
 ## Playbooks
 
-_(client-agnostic lessons & checklists — none yet; see [[playbooks/README]])_
+- [[playbooks/cc-toolkit-deploy-lifecycle]] — the toolkit's own runbook: spin up → work → grow the brain → clean exit (with flowchart)
 
 ## Syntheses
 
