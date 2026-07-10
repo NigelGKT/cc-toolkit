@@ -2,7 +2,7 @@
 type: playbook
 tags: [deploy, lifecycle, runbook, cc-toolkit, meta]
 origin: GKT cc-toolkit (toolkit deploy + cleanup lifecycle, 2026)
-updated: 2026-07-09
+updated: 2026-07-10
 status: stable
 ---
 
@@ -23,11 +23,11 @@ flowchart TD
         A["git clone cc-toolkit"] --> B["setup  (audit only, changes nothing)"]
         B --> C{"existing ~/.claude config?"}
         C -- "clean machine" --> F["deploys straight away"]
-        C -- "existing config" --> D["review: HARVEST candidates + CONFLICTS"]
-        D --> E["setup -Force  (backup then merge-deploy)"]
+        C -- "existing config" --> D["review: HARVEST candidates (files + plugins) + CONFLICTS"]
+        D --> E["setup -Force  (backup, merge-deploy, hydrate plugins.json)"]
         F --> G["set ANTHROPIC_API_KEY -> claude"]
         E --> G
-        G --> H(["canary 'Mr Nigel --' + skills + brain loaded"])
+        G --> H(["canary 'Mr Nigel --' + skills + brain + plugins loaded"])
     end
 
     subgraph WORK["2 - Work & compound"]
@@ -35,7 +35,10 @@ flowchart TD
         W --> P["s.wrap-up Part C flags a transferable concept/lesson"]
         P --> Q["promote into cc-toolkit-wiki-brain: scrub, set origin:, re-link"]
         Q --> R["commit + push (repo = source of truth)"]
-        R --> S["redeploy: setup -Force  (brain rides to every machine)"]
+        W --> PL["install a plugin locally (claude plugin install)"]
+        PL --> PH["setup -HarvestPlugins  -> regenerates plugins.json"]
+        PH --> R
+        R --> S["redeploy: setup -Force  (brain + plugins ride to every machine)"]
         S -.->|next session, any machine| H
     end
 
@@ -89,6 +92,31 @@ nvm + Claude via npm), `--force` to deploy.
 Query the other direction before solving anything cold: *"what does my brain say about X"* →
 `s.wiki` against `~/.claude/cc-toolkit-wiki-brain/`.
 
+## Runbook — Harvest a plugin (install local, ride everywhere)
+
+Plugins are the one item that is **hydrated, not copied**. `~/.claude/plugins/` is runtime
+state (self-updating, absolute machine paths) and stays gitignored — so we version the
+*intent* in `plugins.json` and re-install on deploy.
+
+```powershell
+# 1. Install locally however you like
+claude plugin marketplace add kepano/obsidian-skills
+claude plugin install obsidian@obsidian-skills
+
+# 2. Pull the intent UP into the manifest (strips machine-specific paths/timestamps)
+.\deployment\windows\setup.ps1 -HarvestPlugins    # regenerates plugins.json
+
+# 3. Commit + push
+git add plugins.json; git commit -m "harvest: obsidian-skills"; git push
+
+# 4. On any machine, the next deploy re-installs it automatically
+.\deployment\windows\setup.ps1 -Force             # marketplace add + install (idempotent)
+```
+
+The audit (`setup.ps1` on an existing config) lists installed-but-unrecorded plugins as
+**HARVEST CANDIDATES (plugins)** and manifest-but-not-installed ones as **WOULD BE
+INSTALLED** — the same intent comparison, never a byte diff.
+
 ## Runbook — Clean exit (client hand-back)
 
 ```powershell
@@ -119,6 +147,10 @@ or runtime state. Contrast `cleanup.ps1 -Force`, which **is** destructive (remov
 - **Deploy contract is folder-name-keyed** — `ToolkitItems = CLAUDE.md, settings.json,
   skills, cc-toolkit-wiki-brain`. Renaming a deployed folder means updating that list in
   `setup.ps1` **and** `setup.sh` in lockstep, or it silently stops deploying.
+- **Plugins are hydrated, never copied** — `plugins.json` (marketplaces + plugin names) is
+  the source of truth; the `~/.claude/plugins/` folder is gitignored runtime state. Never
+  commit the folder; harvest with `-HarvestPlugins`, which strips machine-specific paths.
+  (Unix `setup.sh` still needs the parallel port for this to hold on the VPS track.)
 
 ## Transfer note
 

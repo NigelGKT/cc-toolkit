@@ -2,6 +2,34 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.8.0] — 2026-07-10
+
+### Added
+- **Plugin harvest + hydrate — plugins now ride to every machine, declaratively.** Claude Code
+  plugins (e.g. `kepano/obsidian-skills`) live in `~/.claude/plugins/`, which is self-updating,
+  machine-path-laden runtime state and stays gitignored — so the toolkit versions the *intent*,
+  not the bytes (the npm lockfile pattern: track the manifest, re-install `node_modules`).
+  - **`plugins.json`** (new, repo root) — declarative manifest: `{ marketplaces: name→repo,
+    plugins: [name@marketplace] }`. Seeded with `obsidian@obsidian-skills`.
+  - **`setup.ps1` audit** now reports **HARVEST CANDIDATES (plugins)** — installed here but not
+    in `plugins.json` — and **WOULD BE INSTALLED** — in the manifest but not on this machine. An
+    intent comparison (reads `~/.claude/plugins/{known_marketplaces,installed_plugins}.json`,
+    stripping absolute paths/timestamps/SHAs), never a byte diff.
+  - **`setup.ps1 -Force` deploy** now hydrates from the manifest via `claude plugin marketplace
+    add` + `claude plugin install --scope user`. Idempotent; tolerant of offline / missing
+    `claude` (degrades to printing the commands to run by hand).
+  - **`setup.ps1 -HarvestPlugins`** (new switch) — regenerates `plugins.json` from this machine's
+    live plugin state, then stops. One-command "pull up" for a locally installed plugin. Keeps
+    default marketplaces (`claude-plugins-official`) out unless a listed plugin depends on one.
+  - Docs: `README.md` (new "Plugins — install locally, harvest up" section) and the
+    deploy-lifecycle playbook (mermaid + plugin runbook + a new invariant) updated to match.
+
+### Notes
+- Verified against Claude Code v2.1.197: `claude plugin marketplace add` / `install` are
+  non-interactive with real exit codes, so hydration is fully scriptable.
+- **Unix `setup.sh` not yet ported** — the plugin layer is Windows-only for now; the VPS track
+  needs the parallel port before this holds there (flagged in the playbook invariant).
+
 ## [1.7.0] — 2026-07-09
 
 ### Added

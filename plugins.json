@@ -1,0 +1,8 @@
+﻿{
+    "marketplaces":  {
+                         "obsidian-skills":  "kepano/obsidian-skills"
+                     },
+    "plugins":  [
+                    "obsidian@obsidian-skills"
+                ]
+}
