@@ -9,3 +9,9 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - New: [[concepts/fifo-vs-vwap-cost-basis]], [[concepts/convert-at-edge-display-lens]], [[concepts/cost-layer-as-derived-view]]
 - Origin: Propex Trading (PNL analytics engine, 2026)
 - Scrub: client name, file/function/line references, and raw rate data removed from bodies; origin retained in frontmatter
+
+## [2026-07-10 23:51] promote | Concept — declarative intent over materialized state
+- New: [[concepts/declarative-intent-over-materialized-state]]
+- Origin: GKT cc-toolkit (plugin harvest + hydrate, 2026)
+
+## [2026-07-10 23:51] ingest | Session note — cc-toolkit plugin harvest + hydrate
