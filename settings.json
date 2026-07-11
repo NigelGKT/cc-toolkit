@@ -1,14 +1,44 @@
 {
   "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "node ~/.claude/statusline.js"
+  },
   "agentPushNotifEnabled": true,
   "inputNeededNotifEnabled": true,
-  "effortLevel": "max",
+  "effortLevel": "xhigh",
   "permissions": {
     "deny": [
       "Bash(*cleanup.ps1*)",
       "Bash(*cleanup.sh*)",
       "PowerShell(*cleanup.ps1*)",
       "PowerShell(*cleanup.sh*)"
+    ],
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git remote -v)",
+      "Bash(git worktree list)",
+      "Bash(ls*)",
+      "Bash(dir*)",
+      "Bash(wc*)",
+      "Bash(head*)",
+      "Bash(tail*)",
+      "Bash(du*)",
+      "Bash(date*)",
+      "Bash(node --version)",
+      "Bash(python --version)",
+      "PowerShell(Get-ChildItem*)",
+      "PowerShell(Get-Content*)",
+      "PowerShell(Get-Command*)",
+      "PowerShell(Test-Path*)",
+      "PowerShell(Get-CimInstance*)",
+      "PowerShell(git status*)",
+      "PowerShell(git log*)",
+      "PowerShell(git diff*)"
     ]
   }
 }

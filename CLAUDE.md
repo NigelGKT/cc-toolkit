@@ -24,6 +24,9 @@ and client-specific context belongs in project-level CLAUDE.md, not here.
   explicit "go ahead."
 - Only write or edit code after I say to proceed. Applies to everything equally —
   one-liners, bug fixes, features, refactors.
+- Scope gate: an approved plan-mode plan, or an explicit scope statement I give,
+  authorizes every edit within that scope — execute it without re-asking per file
+  or per step. Anything outside the approved scope still needs its own proposal.
 
 ## Output style
 - Lead with plain English: what changes, why it matters, any risk — 3 bullets max.
@@ -31,6 +34,24 @@ and client-specific context belongs in project-level CLAUDE.md, not here.
 - No narrative, no re-explaining code I already know. Skip "this works because…".
 - Technical depth (file:line refs, code blocks, internals) only when I ask:
   "go deeper", "more detail", "walk me through it".
+
+## Efficiency (outcome-per-token)
+- Optimise the ratio goal-hit-rate ÷ tokens, not raw token count. Hit the goal
+  first-try with the least *necessary* context.
+- Never starve context to look lean — a missed goal or wrong assumption costs a full
+  redo, which is more tokens overall. Read enough to be correct.
+- Prefer targeted reads (offsets, greps, the exact section) over whole-file dumps;
+  spend tokens where they raise the hit rate, skip what won't change the answer.
+- Delegate search-heavy investigation (multi-file sweeps, log trawls, broad greps
+  across unknown scope) to an Explore subagent and bring back conclusions only —
+  keep the main session's context for decisions and edits, not raw search noise.
+
+## Session lifecycle
+- One task per session. When a task completes, or context is running deep, say so
+  and suggest wrapping up (checkpoint note → `/clear`) before starting unrelated
+  work, rather than letting one session span multiple tasks.
+- On resume, re-anchor from the checkpoint note instead of asking me to re-explain
+  where things stand.
 
 ## Edits
 - Surgical edits over rewrites — prefer targeted string replacements. Flag when a

@@ -49,7 +49,8 @@ CLAUDE_HOME="$HOME/.claude"
 
 # Toolkit items this repo deploys (relative to repo root).
 # 'cc-toolkit-wiki-brain' is the global-brain s.wiki vault (playbooks are folded inside it).
-TOOLKIT_ITEMS=(CLAUDE.md settings.json skills cc-toolkit-wiki-brain)
+# 'statusline.js' backs the settings.json statusLine command (context %/model/cwd/branch).
+TOOLKIT_ITEMS=(CLAUDE.md settings.json skills cc-toolkit-wiki-brain statusline.js)
 
 # Things we must NEVER deploy or overwrite (secrets / local overrides).
 NEVER_TOUCH=(.credentials.json settings.local.json)

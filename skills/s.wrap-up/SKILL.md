@@ -102,6 +102,7 @@ Run straight through — no further gates:
    - Body (only if complex): 2–3 bullets, ≤80 chars each.
    - No `Co-Authored-By` unless the user asks.
 3. Say: *"Copy that and run `git add <files> && git commit -m \"...\"` when ready. Done."*
+4. Say: *"Checkpoint written — safe to `/clear`; re-anchor next session from `<wiki note path, or CLAUDE.md if no wiki>`."* Skip this line if Stage 0 was skipped (no wiki) and CLAUDE.md wasn't touched — there's nothing to re-anchor from.
 
 If the user flags changes instead of confirming: revise and re-present the summary. Only write CLAUDE.md on explicit confirmation.
 
