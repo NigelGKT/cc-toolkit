@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-const { execSync } = require('child_process');
 const path = require('path');
 
 let input = '';
@@ -18,15 +17,14 @@ process.stdin.on('end', () => {
   const ctxColor = pct == null ? RESET : pct >= 90 ? RED : pct >= 70 ? YELLOW : GREEN;
   const ctxLabel = pct == null ? 'ctx: --' : `ctx: ${pct}%`;
 
-  let branch = '';
-  try {
-    const cwd = data.workspace?.current_dir || data.cwd || process.cwd();
-    branch = execSync('git branch --show-current', { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
-  } catch {}
-
-  // Line 1: folder | branch
+  // Line 1: folder | repo link (clickable, absent outside a git repo w/ an origin remote)
   const line1 = [`📁 ${dir}`];
-  if (branch) line1.push(`🌿 ${branch}`);
+  const repo = data.workspace?.repo;
+  if (repo?.owner && repo?.name) {
+    const url = `https://${repo.host || 'github.com'}/${repo.owner}/${repo.name}`;
+    const label = `${repo.owner}/${repo.name}`;
+    line1.push(`🔗 \x1b]8;;${url}\x07${label}\x1b]8;;\x07`);
+  }
   console.log(line1.join(' | '));
 
   // Line 2: model | effort | context% | cost | duration | lines changed
