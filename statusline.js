@@ -30,6 +30,22 @@ process.stdin.on('end', () => {
 
   console.log(parts.join(' | '));
 
+  // Session stats line: cost, wall-clock duration, lines changed, effort level.
+  const fmtElapsed = ms => {
+    const totalMin = Math.floor((ms || 0) / 60000);
+    const h = Math.floor(totalMin / 60), m = totalMin % 60;
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  };
+  if (data.cost) {
+    const cost = data.cost.total_cost_usd ?? 0;
+    const added = data.cost.total_lines_added ?? 0;
+    const removed = data.cost.total_lines_removed ?? 0;
+    const statsParts = [`💰 $${cost.toFixed(2)}`, `⏱ ${fmtElapsed(data.cost.total_duration_ms)}`];
+    if (added > 0 || removed > 0) statsParts.push(`+${added}/-${removed}`);
+    if (data.effort?.level) statsParts.push(`eff: ${data.effort.level}`);
+    console.log(statsParts.join(' | '));
+  }
+
   // Second line: session (5h) + weekly rate-limit usage bars. Absent until the
   // first API response of a session, and only present for Claude.ai subscribers.
   const barColor = p => p >= 90 ? RED : p >= 70 ? YELLOW : GREEN;
