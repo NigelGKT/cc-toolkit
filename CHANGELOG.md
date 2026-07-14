@@ -2,6 +2,49 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.10.0] — 2026-07-11
+
+### Added
+- **`setup.sh` plugin parity (closes the Windows/Unix gap from 1.8.0).** The Linux/macOS
+  deploy now carries the full declarative plugin layer that `setup.ps1` had:
+  `--harvest-plugins` regenerates `plugins.json` from live state, the audit reports plugin
+  **HARVEST CANDIDATES** / **WOULD BE INSTALLED**, and `--force` **hydrates** from the
+  manifest (`claude plugin marketplace add` + `install --scope user`). Idempotent; tolerant
+  of offline / missing `claude`. JSON is parsed with **node** (already a guaranteed
+  prerequisite) rather than adding a `jq` dependency a fresh VPS wouldn't have.
+
+### Fixed
+- **BOM tolerance in the manifest reader.** `plugins.json` written by `setup.ps1` on Windows
+  PowerShell 5.1 (`Set-Content -Encoding UTF8`) carries a UTF-8 BOM, which `JSON.parse`
+  rejects. The Unix readers strip a leading BOM (pure-ASCII `charCodeAt` guard) so a manifest
+  authored on Windows hydrates correctly on Linux. Caught by a cross-script parity test.
+
+### Notes
+- The VPS track's last toolkit-side prerequisite is now cleared — plugins ride to a Linux
+  deploy the same as Windows.
+
+## [1.9.0] — 2026-07-11
+
+> Backfilled from commits `768290e` / `8fc3bcc` / `35680ed`, which shipped under this
+> version but did not write a CHANGELOG entry.
+
+### Added
+- **Status line (`statusline.js`, new).** A two-row status line wired via `settings.json`
+  `statusLine`: folder + branch on one row; model, effort, context %, session cost,
+  duration, and lines on the other, with rate-limit usage bars (session 5h + weekly) and a
+  reset countdown. Added to the deploy manifest (`TOOLKIT_ITEMS`) in both `setup.ps1` and
+  `setup.sh` so it rides to every machine.
+- **Permission allowlist in `settings.json`.** Read-only and safe-git commands (status/log/
+  diff/show/branch, `ls`/`head`/`tail`/`wc`, `--version` probes, etc.) are pre-approved so
+  routine inspection doesn't prompt — the cleanup `deny` block still stands above it.
+
+### Changed
+- **`CLAUDE.md` operating contract** gained a **scope gate** (an approved plan or explicit
+  scope authorizes every edit within it — no per-file re-ask), an **efficiency
+  (outcome-per-token)** section, and a **session-lifecycle** section (one task per session;
+  checkpoint → `/clear`; re-anchor on resume).
+- **`s.wrap-up`** now ends with a `/clear` + re-anchor reminder after drafting the commit.
+
 ## [1.8.0] — 2026-07-10
 
 ### Added

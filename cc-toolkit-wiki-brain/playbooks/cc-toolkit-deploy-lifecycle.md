@@ -149,8 +149,8 @@ or runtime state. Contrast `cleanup.ps1 -Force`, which **is** destructive (remov
   `setup.ps1` **and** `setup.sh` in lockstep, or it silently stops deploying.
 - **Plugins are hydrated, never copied** — `plugins.json` (marketplaces + plugin names) is
   the source of truth; the `~/.claude/plugins/` folder is gitignored runtime state. Never
-  commit the folder; harvest with `-HarvestPlugins`, which strips machine-specific paths.
-  (Unix `setup.sh` still needs the parallel port for this to hold on the VPS track.)
+  commit the folder; harvest with `-HarvestPlugins` (PowerShell) / `--harvest-plugins`
+  (bash), which strips machine-specific paths. Windows and Unix are at parity as of v1.10.
 
 ## Transfer note
 
