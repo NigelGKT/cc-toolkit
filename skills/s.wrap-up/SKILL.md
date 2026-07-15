@@ -15,8 +15,11 @@ There is exactly **one approval gate** in the whole flow: the layman's summary i
 
 Do all of this silently before presenting anything.
 
-1. `git log --oneline -20` — learn the commit message style (prefix/scope, version numbering) and recent history shape.
-2. **Capture everything unpushed — this is the authoritative source of truth. NEVER summarise from in-session memory.**
+0. **Detect project type**: run `git rev-parse --is-inside-work-tree` (suppress errors). If it succeeds, this is a **codebase wrap-up** — proceed with steps 1-2 as written. If it fails (not a git repo), this is a **notes-based wrap-up** — skip steps 1-2 entirely and instead:
+   - Review this session's actual file operations (Write/Edit/Bash tool calls) as the authoritative source of truth — **NEVER summarise from memory alone**. There's no diff to read, so the running conversation's tool-call record is the equivalent source: walk back through it and list every file touched.
+   - List every file created, moved, or edited this session, grouped by distinct body of work.
+1. *(Codebase only)* `git log --oneline -20` — learn the commit message style (prefix/scope, version numbering) and recent history shape.
+2. *(Codebase only)* **Capture everything unpushed — this is the authoritative source of truth. NEVER summarise from in-session memory.**
    - `git status` — staged, unstaged, untracked.
    - `git log --oneline @{u}..HEAD` — local commits not on the remote (fallback `HEAD~5..HEAD` if no upstream).
    - `git diff --stat @{u}` — every changed file with line counts (fallback `git diff --stat HEAD`).
@@ -25,13 +28,12 @@ Do all of this silently before presenting anything.
 4. Check for a wiki: probe `./wiki-schema.md` or scan `CLAUDE.md` for a `## Wiki` section pointing to a subfolder.
 
 **THOROUGHNESS SELF-CHECK — answer these explicitly before moving on:**
-- Did I read every non-trivial diff, or only the changes I remember making this session?
-- Does any single file's diff contain several *distinct* changes (a feature + a refactor + a rename) that I'd otherwise lump into one vague line? List each separately.
-- Are any untracked files/folders real work (docs, plans, notes) rather than runtime data?
-- Enumerate the **distinct bodies of work** as a list. If that list came from memory rather than the diffs, STOP and re-read the diffs.
+- **Codebase**: Did I read every non-trivial diff, or only the changes I remember making this session? Does any single file's diff contain several *distinct* changes (a feature + a refactor + a rename) that I'd otherwise lump into one vague line? List each separately. Are any untracked files/folders real work (docs, plans, notes) rather than runtime data?
+- **Notes-based**: Did I account for every file operation this session, not just the ones tied to the main headline task? Does any single file's edits contain several *distinct* changes I'd otherwise lump into one vague line? List each separately.
+- Enumerate the **distinct bodies of work** as a list. If that list came from memory rather than the diffs/tool-call record, STOP and re-derive it from source.
 - Did anything this session **generalize beyond this project** — a reusable command/skill, a global CLAUDE.md rule, or a client-agnostic lesson? Note it for the promote step (Part C).
 
-This self-check is the fix for the single most common failure of this skill: under-reporting because the summary was written from memory instead of the diff.
+This self-check is the fix for the single most common failure of this skill: under-reporting because the summary was written from memory instead of the diff (or, for notes-based projects, the tool-call record).
 
 ---
 
@@ -84,7 +86,7 @@ Present ONE plain-English summary, take a single confirmation, then implement CL
 
 Plain English — what a non-engineer could follow. No code-path dumps. Two short parts:
 
-**A — What changed since the last push.** The distinct bodies of work from the self-check (each as its own bullet, even when several live in one file), which files they touch, and how many unpushed commits exist. Flag anything that looks like it shouldn't be committed (`.env`, large binaries, temp files), and anything reverted.
+**A — What changed this session.** *(Codebase: since the last push, from the diff. Notes-based: every file created/moved/edited this session, from the tool-call record.)* The distinct bodies of work from the self-check (each as its own bullet, even when several live in one file), which files they touch, and — **codebase only** — how many unpushed commits exist. Flag anything that looks like it shouldn't be committed (`.env`, large binaries, temp files), and anything reverted.
 
 **B — What I'll change in CLAUDE.md.** The surgical edits: version bump (follow project convention), backlog status, architecture/data-flow notes, key-files table, config section. Be explicit about what you are **not** touching. Do not infer changes that aren't in the diff.
 
@@ -96,12 +98,12 @@ Then ONE gate, one sentence: *"Confirm to apply, or flag anything to fix."*
 
 Run straight through — no further gates:
 1. Write the CLAUDE.md changes. Briefly confirm what was written.
-2. Draft the commit message and present it as a clean copyable block:
+2. **Codebase only** — Draft the commit message and present it as a clean copyable block:
    - Match the project's prefix/scope style exactly (`feat(v5.x):`, `fix(I03):`, `chore:` …).
    - Subject: imperative, ≤72 chars.
    - Body (only if complex): 2–3 bullets, ≤80 chars each.
    - No `Co-Authored-By` unless the user asks.
-3. Say: *"Copy that and run `git add <files> && git commit -m \"...\"` when ready. Done."*
+3. **Codebase only** — Say: *"Copy that and run `git add <files> && git commit -m \"...\"` when ready. Done."* **Notes-based** — Say: *"Done."* (no git instructions — there's nothing to stage or commit).
 4. Say: *"Checkpoint written — safe to `/clear`; re-anchor next session from `<wiki note path, or CLAUDE.md if no wiki>`."* Skip this line if Stage 0 was skipped (no wiki) and CLAUDE.md wasn't touched — there's nothing to re-anchor from.
 
 If the user flags changes instead of confirming: revise and re-present the summary. Only write CLAUDE.md on explicit confirmation.

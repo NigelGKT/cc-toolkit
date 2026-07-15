@@ -2,6 +2,27 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.11.0] — 2026-07-15
+
+### Added
+- **`skills/s.wiki/reference/obsidian-native.md`** — harvested from this machine. Documents
+  how `s.wiki` delegates Obsidian-native materialization (Bases, Canvas, callouts, CLI,
+  Defuddle) to the `kepano/obsidian-skills` plugin family instead of reimplementing it.
+
+### Changed
+- **`skills/s.wrap-up/SKILL.md`** — harvested from this machine's deployed copy, which had
+  gained a full **notes-based wrap-up mode** (for non-git projects: walks the session's
+  tool-call record instead of a diff) that the repo's copy lacked. The deployed copy was
+  edited directly at some point, bypassing the curate-in-repo rule; this pulls it back to
+  canonical.
+- **`settings.json` `effortLevel`** — `xhigh` → `high`, matching this machine's live setting.
+
+### Notes
+- Audit (`setup.ps1`, no `-Force`) also flagged the deploy-lifecycle playbook and
+  `.obsidian/workspace.json` as CONFLICTS — both are expected: the playbook was ahead in
+  the repo (this session's v1.10 edit not yet redeployed here) and `workspace.json` is
+  gitignored Obsidian UI churn. Neither needed harvesting.
+
 ## [1.10.0] — 2026-07-11
 
 ### Added

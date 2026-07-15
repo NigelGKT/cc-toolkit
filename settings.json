@@ -6,7 +6,7 @@
   },
   "agentPushNotifEnabled": true,
   "inputNeededNotifEnabled": true,
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "permissions": {
     "deny": [
       "Bash(*cleanup.ps1*)",
