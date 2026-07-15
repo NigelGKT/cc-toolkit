@@ -25,6 +25,7 @@ Do all of this silently before presenting anything.
    - `git diff --stat @{u}` — every changed file with line counts (fallback `git diff --stat HEAD`).
    - **For every non-trivial file in that stat, READ its actual diff** (`git diff @{u} -- <file>`), not just the stat line. A large diff in a single file routinely bundles **multiple unrelated bodies of work** from parallel sessions — you will miss them if you only read the files you personally touched this session.
 3. Read `CLAUDE.md` in CWD fully if present — note version, backlog, versioning convention.
+3b. Read `STATUS.md` in CWD if present — it is the live working-memory tier (current version, active task, next step). When it exists, it is the authoritative "where were we" anchor and the target for volatile updates in the write stage.
 4. Check for a wiki: probe `./wiki-schema.md` or scan `CLAUDE.md` for a `## Wiki` section pointing to a subfolder.
 
 **THOROUGHNESS SELF-CHECK — answer these explicitly before moving on:**
@@ -88,7 +89,7 @@ Plain English — what a non-engineer could follow. No code-path dumps. Two shor
 
 **A — What changed this session.** *(Codebase: since the last push, from the diff. Notes-based: every file created/moved/edited this session, from the tool-call record.)* The distinct bodies of work from the self-check (each as its own bullet, even when several live in one file), which files they touch, and — **codebase only** — how many unpushed commits exist. Flag anything that looks like it shouldn't be committed (`.env`, large binaries, temp files), and anything reverted.
 
-**B — What I'll change in CLAUDE.md.** The surgical edits: version bump (follow project convention), backlog status, architecture/data-flow notes, key-files table, config section. Be explicit about what you are **not** touching. Do not infer changes that aren't in the diff.
+**B — What I'll change in CLAUDE.md / STATUS.md.** Respect the three-tier split (see the global `## Memory architecture`): **if a `STATUS.md` exists at the project root**, the volatile working state goes there — current version, what just shipped, active task, next step — and CLAUDE.md gets only *stable* edits (architecture/data-flow notes, key-files table, config section, contract changes). **If there is no STATUS.md**, everything goes into CLAUDE.md as before (single-tier fallback). Either way: surgical edits, be explicit about what you are **not** touching, and do not infer changes that aren't in the diff.
 
 **C — Promote to the global toolkit (cc-toolkit)?** Anything from this session that generalizes beyond this project: a reusable command → `commands/`, a skill → `skills/`, a refined global behaviour → global `CLAUDE.md`, a **transferable pattern/concept → `cc-toolkit-wiki-brain/concepts/`**, or a **client-agnostic lesson/checklist → `cc-toolkit-wiki-brain/playbooks/`**. List each as a one-line candidate with its target. For anything going into `cc-toolkit-wiki-brain/`, note that promotion means **scrub project specifics from the body and record the source in `origin:` frontmatter** (see `cc-toolkit-wiki-brain/wiki-schema.md`). **Flag-only:** never auto-push to cc-toolkit and never add a gate for it — the user promotes manually. If nothing generalizes, say "nothing to promote" and move on.
 
@@ -97,14 +98,14 @@ Then ONE gate, one sentence: *"Confirm to apply, or flag anything to fix."*
 ### On confirmation
 
 Run straight through — no further gates:
-1. Write the CLAUDE.md changes. Briefly confirm what was written.
+1. Write the changes per the tier split from Part B: refresh `STATUS.md` with the volatile state (bump its `Last updated:`, update Latest / Active task / Next step) **if it exists**, and write the stable CLAUDE.md edits. Briefly confirm what was written to each.
 2. **Codebase only** — Draft the commit message and present it as a clean copyable block:
    - Match the project's prefix/scope style exactly (`feat(v5.x):`, `fix(I03):`, `chore:` …).
    - Subject: imperative, ≤72 chars.
    - Body (only if complex): 2–3 bullets, ≤80 chars each.
    - No `Co-Authored-By` unless the user asks.
 3. **Codebase only** — Say: *"Copy that and run `git add <files> && git commit -m \"...\"` when ready. Done."* **Notes-based** — Say: *"Done."* (no git instructions — there's nothing to stage or commit).
-4. Say: *"Checkpoint written — safe to `/clear`; re-anchor next session from `<wiki note path, or CLAUDE.md if no wiki>`."* Skip this line if Stage 0 was skipped (no wiki) and CLAUDE.md wasn't touched — there's nothing to re-anchor from.
+4. Say: *"Checkpoint written — safe to `/clear`; re-anchor next session from `<re-anchor target>`."* Pick the re-anchor target by priority: **`STATUS.md` if it exists** (the live working tier — best re-entry point), else the wiki session-note path, else `CLAUDE.md`. Skip this line only if Stage 0 was skipped (no wiki) and neither STATUS.md nor CLAUDE.md was touched — there's nothing to re-anchor from.
 
 If the user flags changes instead of confirming: revise and re-present the summary. Only write CLAUDE.md on explicit confirmation.
 

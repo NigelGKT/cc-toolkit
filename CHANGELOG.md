@@ -2,6 +2,27 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.14.0] — 2026-07-15
+
+Introduce the **three-tier project memory architecture** (`CLAUDE.md` → `STATUS.md` → wiki brain),
+split by rate-of-change, and wire the skills to maintain the new working tier. Rolled out across the
+workspace's project folders (per-subproject for the `trading-scripts` monorepo).
+
+### Added
+- **`## Memory architecture` in the global `CLAUDE.md`** — the canonical three-tier contract
+  (stable `CLAUDE.md` / volatile `STATUS.md` / long-term wiki brain) plus the ownership scope split
+  (operator facts → harness memory; cross-project knowledge → `cc-toolkit-wiki-brain`; per-project
+  domain → that project's brain). Stated once here; project `CLAUDE.md` files carry only thin pointers.
+- **`skills/s.wiki/templates/status.md`** — a STATUS.md scaffold for the working tier.
+- **`STATUS.md`** (repo-local, not deployed) — cc-toolkit's own repo / config / deploy state.
+
+### Changed
+- **`s.wiki` bootstrap (Step 2b)** now scaffolds `STATUS.md` at the project root + a thin `## Memory`
+  pointer alongside `## Wiki` (never clobbers an existing STATUS.md), and adds an ingest scope-boundary
+  rule (project brains take domain knowledge only; operator/global facts routed elsewhere).
+- **`s.wrap-up`** orients on `STATUS.md`, routes volatile state (version / active task / next step)
+  there instead of `CLAUDE.md` when it exists, and re-anchors the checkpoint to `STATUS.md`.
+
 ## [1.13.0] — 2026-07-15
 
 ### Fixed

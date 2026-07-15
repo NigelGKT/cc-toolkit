@@ -53,6 +53,24 @@ and client-specific context belongs in project-level CLAUDE.md, not here.
 - On resume, re-anchor from the checkpoint note instead of asking me to re-explain
   where things stand.
 
+## Memory architecture (three-tier, per project)
+- Project memory splits by **rate-of-change**, not topic. Three tiers:
+
+  | Tier | File / location | Holds | Changes |
+  |---|---|---|---|
+  | Contract | `CLAUDE.md` | stable rules, architecture, thin pointers | rarely |
+  | Working memory | `STATUS.md` | "where are we right now" — current version, active task, next step | every session |
+  | Long-term | wiki brain (`s.wiki`) | domain knowledge, decisions, changelog archive | slowly, accretive |
+
+- **Ownership / scope split** — put each fact where it belongs, once:
+  - operator + cross-project facts about *me* → harness memory (`~/.claude/…/memory/`)
+  - cross-project *knowledge* (transferable patterns, playbooks) → global `cc-toolkit-wiki-brain`
+  - per-project domain knowledge → that project's own wiki brain
+- **DRY:** this contract is stated **once, here** (global). A project `CLAUDE.md` carries only
+  thin pointers + a "current state below is a snapshot — read `STATUS.md` for live status"
+  disclaimer. It never restates these rules. `fde-toolkit` is the reference implementation.
+- When I ask "where are we?" read `STATUS.md` first, not the CLAUDE.md snapshot.
+
 ## Edits
 - Surgical edits over rewrites — prefer targeted string replacements. Flag when a
   new file supersedes an old one.

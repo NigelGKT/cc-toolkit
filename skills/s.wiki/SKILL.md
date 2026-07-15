@@ -59,7 +59,8 @@ If `WIKI_ROOT` is a subfolder of CWD, create it first if it doesn't exist.
 
 The `README.md` is for the human user — explains the folder structure, how to invoke the skill, common commands, and Obsidian setup. Copy the template verbatim; no per-wiki customization needed on bootstrap. Safe for the user to edit afterwards; the skill never overwrites it.
 
-**Step 2b — Write path back to CLAUDE.md** (only when WIKI_ROOT ≠ CWD):
+**Step 2b — Wire the three-tier memory** (only when WIKI_ROOT ≠ CWD, i.e. a real project with a `CLAUDE.md`):
+
 Append a `## Wiki` section to `CLAUDE.md` in CWD:
 ```markdown
 ## Wiki (Knowledge Base)
@@ -67,6 +68,17 @@ Append a `## Wiki` section to `CLAUDE.md` in CWD:
 The project wiki lives at **`<WIKI_ROOT>`**. When the wiki skill activates from the project root, probe `<WIKI_ROOT>/wiki-schema.md`. All wiki file paths are relative to that folder root.
 ```
 This makes all future activations from the project root automatically resolve to the correct subfolder — no `cd` needed.
+
+Then wire the working-memory tier (see the global `## Memory architecture` contract — CLAUDE.md = stable, STATUS.md = live, wiki = long-term):
+- **Scaffold `STATUS.md` at CWD** (the project root, **not** WIKI_ROOT) from `~/.claude/skills/s.wiki/templates/status.md` — **only if it does not already exist** (never clobber an existing STATUS.md). Fill `<Project Name>` from the CWD folder name and the dates with today.
+- **Append a thin `## Memory` pointer** to `CLAUDE.md` in CWD (once; skip if already present):
+```markdown
+## Memory
+
+- Stable contract + rules: the global `CLAUDE.md` operating contract (see its `## Memory architecture`).
+- **Live status — read `STATUS.md` first** for "where are we now"; any "current state" below is a snapshot and goes stale.
+- Long-term domain knowledge: the wiki brain at **`<WIKI_ROOT>`**.
+```
 
 **Step 3 — Confirm** by listing what was created and pointing the user at `wiki-schema.md` to read/edit. Tell them: edit the schema any time to refine how the wiki specializes; the skill re-reads it on every activation.
 
@@ -82,6 +94,14 @@ Do not pre-populate any content pages. Bootstrap is purely structural. The first
 ## Ingest workflow
 
 Run when the user wants to add a source. The source may be: a file path, a URL, pasted text, an image, or "this conversation".
+
+**Scope boundary — what belongs in a *project* brain.** A project wiki holds that project's
+**domain knowledge** only. Do **not** ingest, and if encountered route elsewhere:
+- Operator/personal facts or cross-project preferences about the user → harness memory (`~/.claude/…/memory/`), not the brain.
+- Transferable, client-agnostic patterns/playbooks that generalize beyond this project → the global `cc-toolkit-wiki-brain`, not this project brain.
+- Volatile "where are we now" state (current version, active task, next step) → `STATUS.md`, not the brain.
+
+Keep the tiers clean: when a source mixes domain knowledge with any of the above, extract only the domain part here and flag the rest for its proper home.
 
 **Step 1 — Read & confirm**:
 - Place the raw source in `./raw/` if it isn't already (kebab-case filename).
@@ -204,6 +224,7 @@ For bootstrap:
 - `~/.claude/skills/s.wiki/templates/wiki-schema.md`
 - `~/.claude/skills/s.wiki/templates/index.md`
 - `~/.claude/skills/s.wiki/templates/log.md`
+- `~/.claude/skills/s.wiki/templates/status.md` (scaffolded to the project root as `STATUS.md`, not into the brain — see Step 2b)
 
 ---
 
