@@ -1,7 +1,7 @@
 # Global Brain — Index
 
 The cross-project knowledge well. Deploys to every machine via `cc-toolkit`.
-Last updated: 2026-07-10.
+Last updated: 2026-07-15.
 
 ## Concepts
 
@@ -17,3 +17,4 @@ Last updated: 2026-07-10.
 ## Syntheses
 
 - [[syntheses/2026-07-10-session-plugin-harvest]] — plugin harvest + hydrate for cc-toolkit (v1.8.0)
+- [[syntheses/2026-07-15-session-harvest-systematization]] — file harvest (-Harvest) + direction-aware audit + drift-check hook + settings.json semantic compare (v1.12.0–v1.13.0)

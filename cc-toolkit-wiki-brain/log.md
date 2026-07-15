@@ -15,3 +15,7 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - Origin: GKT cc-toolkit (plugin harvest + hydrate, 2026)
 
 ## [2026-07-10 23:51] ingest | Session note — cc-toolkit plugin harvest + hydrate
+
+## [2026-07-15 19:00] ingest | Session note — cc-toolkit harvest systematization (v1.12.0 + v1.13.0)
+- Session: [[syntheses/2026-07-15-session-harvest-systematization]]
+- Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
