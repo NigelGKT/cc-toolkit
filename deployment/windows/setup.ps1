@@ -21,15 +21,31 @@
   plugin names, stripped of machine-specific paths), then exit. Use this to "pull up" a
   plugin you installed locally so it rides to every machine. Review + commit + push after.
 
+.PARAMETER Harvest
+  The inverse of deploy, for FILES. Lists toolkit files that are on this machine but not in
+  the repo (NEW-UP) or edited here and newer than the repo (CHANGED-UP), so you can pull local
+  work UP into cc-toolkit. Dry-run by default; add -Force to copy them into the repo working
+  tree. Review + commit + push after. Never touches secrets.
+
+.PARAMETER Check
+  Fast, silent, once-per-day drift verdict for the SessionStart hook. Prints a single line if
+  local toolkit files are not yet harvested, otherwise nothing. Side-effect-free (no installs,
+  no deploy). Safe to wire into a hook.
+
 .EXAMPLE
   .\setup.ps1          # clean machine -> deploy; existing config -> audit only (no changes)
   .\setup.ps1 -Force   # deploy over an existing config (backup taken first)
   .\setup.ps1 -HarvestPlugins   # regenerate plugins.json from installed plugins, then stop
+  .\setup.ps1 -Harvest          # list local toolkit files not yet in the repo (dry-run)
+  .\setup.ps1 -Harvest -Force   # copy those files UP into the repo, then commit & push
+  .\setup.ps1 -Check            # one-line drift verdict (used by the SessionStart hook)
 #>
 [CmdletBinding()]
 param(
     [switch]$Force,
-    [switch]$HarvestPlugins
+    [switch]$HarvestPlugins,
+    [switch]$Harvest,
+    [switch]$Check
 )
 
 $ErrorActionPreference = 'Stop'
@@ -42,7 +58,8 @@ $ClaudeHome = Join-Path $env:USERPROFILE '.claude'
 # Toolkit items this repo deploys (relative to repo root).
 # 'cc-toolkit-wiki-brain' is the global-brain s.wiki vault (playbooks are folded inside it).
 # 'statusline.js' backs the settings.json statusLine command (context %/model/cwd/branch).
-$ToolkitItems = @('CLAUDE.md', 'settings.json', 'skills', 'cc-toolkit-wiki-brain', 'statusline.js')
+# 'drift-check.ps1' backs the settings.json SessionStart hook (calls setup.ps1 -Check).
+$ToolkitItems = @('CLAUDE.md', 'settings.json', 'skills', 'cc-toolkit-wiki-brain', 'statusline.js', 'drift-check.ps1')
 
 # Things we must NEVER deploy or overwrite (secrets / local overrides).
 $NeverTouch = @('.credentials.json', 'settings.local.json')
@@ -55,6 +72,10 @@ $MachinePluginsDir = Join-Path $ClaudeHome 'plugins'
 # Marketplaces that ship as Claude Code defaults - skip in harvest unless a listed plugin
 # actually depends on one (a plugin's marketplace is the segment after its last '@').
 $DefaultMarketplaces = @('claude-plugins-official')
+
+# Header + prerequisite checks: skipped for -Check (must be silent + side-effect-free,
+# since it runs from a SessionStart hook on every launch).
+if (-not $Check) {
 
 Write-Host ""
 Write-Host "GKT cc-toolkit setup" -ForegroundColor Cyan
@@ -109,6 +130,8 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 
 Write-Host ""
 
+}  # end (-not $Check) header + prerequisite guard
+
 # -- Helper: enumerate the files under a toolkit item (file or dir) --
 function Get-ItemFiles($base, $item) {
     $p = Join-Path $base $item
@@ -138,6 +161,42 @@ function Get-ContentHash($path) {
     $sha = [System.Security.Cryptography.SHA256]::Create()
     try { return [System.BitConverter]::ToString($sha.ComputeHash($toHash)) }
     finally { $sha.Dispose() }
+}
+
+# -- Classify drift between this machine (~/.claude) and the repo, per toolkit file --
+# Shared by the audit, -Harvest, and -Check so all three agree. Content-hash is
+# authoritative for "differs"; direction (LocalNewer/RepoNewer) is a HINT from
+# LastWriteTime and can mislead right after a fresh 'git clone' (which resets mtimes).
+#   harvest UP  = NewLocal + LocalNewer      deploy DOWN = NewRepo + RepoNewer
+function Get-ToolkitDrift {
+    $insync = 0
+    $localNewer = @()   # in both, differ, machine mtime newer -> harvest UP
+    $repoNewer  = @()   # in both, differ, repo mtime newer    -> deploy DOWN
+    $newLocal   = @()   # machine-unique (not in repo)         -> harvest UP (new)
+    $newRepo    = @()   # repo-unique (not on machine)         -> deploy DOWN (add)
+
+    foreach ($item in $ToolkitItems) {
+        foreach ($f in (Get-ItemFiles $RepoRoot $item)) {
+            $dest = Join-Path $ClaudeHome $f.Rel
+            if (-not (Test-Path $dest)) {
+                $newRepo += $f.Rel
+            } elseif ((Get-ContentHash $f.Full) -ne (Get-ContentHash $dest)) {
+                $repoTime = (Get-Item $f.Full).LastWriteTimeUtc
+                $locTime  = (Get-Item $dest).LastWriteTimeUtc
+                if ($locTime -gt $repoTime) { $localNewer += $f.Rel } else { $repoNewer += $f.Rel }
+            } else { $insync++ }
+        }
+    }
+    foreach ($item in $ToolkitItems) {
+        foreach ($f in (Get-ItemFiles $ClaudeHome $item)) {
+            if (-not (Test-Path (Join-Path $RepoRoot $f.Rel))) { $newLocal += $f.Rel }
+        }
+    }
+
+    [pscustomobject]@{
+        InSync = $insync; LocalNewer = @($localNewer); RepoNewer = @($repoNewer)
+        NewLocal = @($newLocal); NewRepo = @($newRepo)
+    }
 }
 
 # -- Plugin state helpers (declarative: marketplaces + plugin names only) --------
@@ -194,6 +253,85 @@ if ($HarvestPlugins) {
     return
 }
 
+# -- Harvest mode (files): pull machine-side toolkit files UP into the repo --------
+# The inverse of deploy. Lists machine-unique (NEW-UP) + machine-newer (CHANGED-UP)
+# toolkit files; with -Force, copies them into the repo working tree for you to review,
+# commit & push. Dry-run otherwise. Never harvests secrets.
+if ($Harvest) {
+    if (-not (Test-Path $ClaudeHome)) {
+        Write-Host "No $ClaudeHome found - nothing to harvest." -ForegroundColor Yellow
+        return
+    }
+    $d = Get-ToolkitDrift
+    $upNew = @($d.NewLocal)
+    $upChg = @($d.LocalNewer)
+
+    if (-not $upNew.Count -and -not $upChg.Count) {
+        Write-Host "Nothing to harvest - the repo already has this machine's toolkit files." -ForegroundColor Green
+        if ($d.RepoNewer.Count) {
+            Write-Host "  (Note: $($d.RepoNewer.Count) file(s) are NEWER in the repo - deploy DOWN with -Force.)" -ForegroundColor DarkYellow
+        }
+        return
+    }
+
+    Write-Host "Harvest candidates (this machine -> repo):" -ForegroundColor Magenta
+    if ($upNew.Count) {
+        Write-Host "  NEW-UP (here, not in the repo):" -ForegroundColor Magenta
+        $upNew | ForEach-Object { Write-Host "    + $_" -ForegroundColor Magenta }
+    }
+    if ($upChg.Count) {
+        Write-Host "  CHANGED-UP (edited here, newer than the repo):" -ForegroundColor Magenta
+        $upChg | ForEach-Object { Write-Host "    ^ $_" -ForegroundColor Magenta }
+    }
+    if ($d.RepoNewer.Count) {
+        Write-Host "  SKIPPED - repo is newer (deploy DOWN instead, do not harvest):" -ForegroundColor DarkYellow
+        $d.RepoNewer | ForEach-Object { Write-Host "    v $_" -ForegroundColor DarkYellow }
+    }
+    Write-Host ""
+
+    if (-not $Force) {
+        Write-Host "DRY RUN - nothing copied. Re-run with -Force to copy the above UP into the repo." -ForegroundColor Yellow
+        return
+    }
+
+    $copied = 0
+    foreach ($rel in ($upNew + $upChg)) {
+        if ($NeverTouch -contains $rel) { continue }   # defensive: never harvest a secret
+        $src = Join-Path $ClaudeHome $rel
+        $dst = Join-Path $RepoRoot $rel
+        $dstDir = Split-Path $dst -Parent
+        if (-not (Test-Path $dstDir)) { New-Item -ItemType Directory -Path $dstDir -Force | Out-Null }
+        Copy-Item -Path $src -Destination $dst -Force
+        Write-Host "  harvested: $rel" -ForegroundColor Green
+        $copied++
+    }
+    Write-Host ""
+    Write-Host "Harvested $copied file(s) into $RepoRoot" -ForegroundColor Green
+    Write-Host "Review, then commit & push to record them in cc-toolkit." -ForegroundColor Yellow
+    return
+}
+
+# -- Check mode: fast, throttled drift verdict for the SessionStart hook ------------
+# Prints ONE line to stdout (so a hook captures it) and exits. Throttled to once/day via
+# a marker file so it adds no latency to repeated session starts. Wrapped so any error is
+# swallowed - a hook must never break a session start.
+if ($Check) {
+    try {
+        if (-not (Test-Path $ClaudeHome)) { return }
+        $marker = Join-Path $ClaudeHome '.toolkit-drift-check'
+        if (Test-Path $marker) {
+            if (((Get-Date) - (Get-Item $marker).LastWriteTime) -lt [TimeSpan]::FromHours(24)) { return }
+        }
+        $d = Get-ToolkitDrift
+        $up = @($d.NewLocal).Count + @($d.LocalNewer).Count
+        if ($up -gt 0) {
+            Write-Output "cc-toolkit: $up local file(s) not yet harvested -> run: setup.ps1 -Harvest"
+        }
+        Set-Content -Path $marker -Value (Get-Date -Format 'o') -Encoding UTF8
+    } catch { }
+    return
+}
+
 # -- Detect an existing Claude Code config ---------------------------
 $existing = $false
 if (Test-Path $ClaudeHome) {
@@ -208,43 +346,31 @@ if ($existing -and -not $Force) {
     Write-Host "AUDIT MODE - nothing will be changed. Reviewing differences..." -ForegroundColor Yellow
     Write-Host ""
 
-    $conflicts = @(); $additions = @(); $insync = 0
+    $d = Get-ToolkitDrift
 
-    # repo -> machine (what cc-toolkit would add or change)
-    foreach ($item in $ToolkitItems) {
-        foreach ($f in (Get-ItemFiles $RepoRoot $item)) {
-            $dest = Join-Path $ClaudeHome $f.Rel
-            if (-not (Test-Path $dest)) {
-                $additions += $f.Rel
-            } elseif ((Get-ContentHash $f.Full) -ne (Get-ContentHash $dest)) {
-                $conflicts += $f.Rel
-            } else { $insync++ }
-        }
-    }
-
-    # machine -> repo (machine-unique = harvest candidates)
-    $harvest = @()
-    foreach ($item in $ToolkitItems) {
-        foreach ($f in (Get-ItemFiles $ClaudeHome $item)) {
-            if (-not (Test-Path (Join-Path $RepoRoot $f.Rel))) { $harvest += $f.Rel }
-        }
-    }
-
-    Write-Host "  In sync (identical): $insync file(s)"
+    Write-Host "  In sync (identical): $($d.InSync) file(s)"
     Write-Host ""
-    if ($conflicts.Count) {
-        Write-Host "  CONFLICTS - this machine differs from cc-toolkit (review before overwriting):" -ForegroundColor Red
-        $conflicts | ForEach-Object { Write-Host "    ~ $_" -ForegroundColor Red }
+    # Direction (LOCAL/REPO newer) is a HINT from LastWriteTime; the content-hash is
+    # authoritative for "differs". A fresh 'git clone' resets mtimes, so on a just-cloned
+    # machine treat REPO NEWER with care.
+    if ($d.LocalNewer.Count) {
+        Write-Host "  LOCAL NEWER - edited here, newer than cc-toolkit (harvest UP):" -ForegroundColor Magenta
+        $d.LocalNewer | ForEach-Object { Write-Host "    ^ $_" -ForegroundColor Magenta }
         Write-Host ""
     }
-    if ($harvest.Count) {
-        Write-Host "  HARVEST CANDIDATES - present here, NOT in cc-toolkit (pull these UP first):" -ForegroundColor Magenta
-        $harvest | ForEach-Object { Write-Host "    + $_" -ForegroundColor Magenta }
+    if ($d.NewLocal.Count) {
+        Write-Host "  HARVEST CANDIDATES - present here, NOT in cc-toolkit (harvest UP):" -ForegroundColor Magenta
+        $d.NewLocal | ForEach-Object { Write-Host "    + $_" -ForegroundColor Magenta }
         Write-Host ""
     }
-    if ($additions.Count) {
+    if ($d.RepoNewer.Count) {
+        Write-Host "  REPO NEWER - cc-toolkit differs and is newer (deploy DOWN with -Force):" -ForegroundColor Red
+        $d.RepoNewer | ForEach-Object { Write-Host "    v $_" -ForegroundColor Red }
+        Write-Host ""
+    }
+    if ($d.NewRepo.Count) {
         Write-Host "  WOULD BE ADDED from cc-toolkit (new on this machine):" -ForegroundColor Green
-        $additions | ForEach-Object { Write-Host "    > $_" -ForegroundColor Green }
+        $d.NewRepo | ForEach-Object { Write-Host "    > $_" -ForegroundColor Green }
         Write-Host ""
     }
 
@@ -266,10 +392,11 @@ if ($existing -and -not $Force) {
     }
 
     Write-Host "Next steps:" -ForegroundColor Cyan
-    Write-Host "  1. HARVEST  - copy anything above worth keeping into the cc-toolkit repo, commit & push."
-    Write-Host "               (for plugins: run -HarvestPlugins to regenerate plugins.json, then commit & push.)"
-    Write-Host "  2. REVIEW   - decide whether cc-toolkit's version should win on each CONFLICT."
-    Write-Host "  3. DEPLOY   - re-run with -Force to install (a backup is taken first)."
+    Write-Host "  1. HARVEST UP - LOCAL NEWER + HARVEST CANDIDATES are local work not yet in cc-toolkit."
+    Write-Host "                  Run: .\deployment\windows\setup.ps1 -Harvest   (dry-run; add -Force to copy up)"
+    Write-Host "                  (plugins: -HarvestPlugins regenerates plugins.json.) Then commit & push."
+    Write-Host "  2. DEPLOY DOWN - REPO NEWER + WOULD BE ADDED come from cc-toolkit; re-run with -Force to"
+    Write-Host "                  install them here (a backup is taken first)."
     Write-Host ""
     Write-Host "No changes were made." -ForegroundColor Yellow
     return

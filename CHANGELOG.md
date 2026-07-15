@@ -2,6 +2,38 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.12.0] — 2026-07-15
+
+Systematize the **local → repo harvest** direction (detect + act + remind), closing the
+asymmetry where `setup.ps1` only ever pushed the repo DOWN and left pulling local work UP as a
+manual, forgettable step.
+
+### Added
+- **`setup.ps1 -Harvest`** — the file-level inverse of deploy (counterpart to `-HarvestPlugins`).
+  Lists **NEW-UP** (machine-only) + **CHANGED-UP** (edited locally, newer than the repo) toolkit
+  files; dry-run by default, `-Force` copies them into the repo working tree. Skips repo-newer
+  files (those are deploy-DOWN) and never harvests secrets.
+- **`setup.ps1 -Check`** — fast, silent, once-per-day drift verdict for the SessionStart hook.
+  Prints a single nudge line when local files aren't harvested yet, else nothing. Throttled via a
+  `~/.claude/.toolkit-drift-check` marker; side-effect-free (no installs, no deploy).
+- **`drift-check.ps1`** (new deployed item) — the SessionStart hook target. Delegates to
+  `setup.ps1 -Check` when `CC_TOOLKIT_HOME` points at a clone; no-ops otherwise. Uses a `-File`
+  wrapper (not an inline `-Command`) so it's robust to however the harness shell quotes the hook.
+- **`settings.json` SessionStart hook** — `powershell -NoProfile -File ~/.claude/drift-check.ps1`.
+  Opt-in per machine via the `CC_TOOLKIT_HOME` env var; silent until set.
+- **`Get-ToolkitDrift`** helper — shared classifier (InSync / LocalNewer / RepoNewer / NewLocal /
+  NewRepo) used by the audit, `-Harvest`, and `-Check` so all three agree.
+
+### Changed
+- **Audit is now direction-aware.** The single `CONFLICTS` bucket is split into **LOCAL NEWER**
+  (harvest UP) vs **REPO NEWER** (deploy DOWN) by `LastWriteTime`; content-hash stays authoritative
+  for *whether* files differ. "Next steps" text rewritten to name both directions and point to
+  `-Harvest`. Direction is labeled a hint (a fresh `git clone` resets mtimes).
+- **Header + prerequisite checks are skipped under `-Check`** so the hook is silent and never
+  triggers a winget/npm install on session start.
+- **Deploy manifest** gains `statusline.js` (already deployed) + `drift-check.ps1` in the
+  documented item list.
+
 ## [1.11.0] — 2026-07-15
 
 ### Added

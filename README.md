@@ -13,16 +13,18 @@ cc-toolkit/
 ├── skills/            ← custom skills
 │   ├── s.wiki/        ← Obsidian-compatible knowledge wiki (source/entity/concept/synthesis)
 │   └── s.wrap-up/     ← end-of-session ritual (summarise + promote generalizable lessons)
+├── statusline.js      ← status line (context %/model/cwd/branch); backs settings.json statusLine
+├── drift-check.ps1    ← SessionStart hook target: warns when local ~/.claude drifts from the repo
 ├── plugins.json       ← declarative plugin manifest (marketplaces + plugin names; see below)
 ├── playbooks/         ← client-agnostic lessons distilled from real project work
 └── deployment/
     └── windows/
-        └── setup.ps1  ← audit-or-deploy installer (see below)
+        └── setup.ps1  ← audit / deploy / harvest / check installer (see below)
 ```
 
 The repo is **flat by design**: each top-level item maps 1:1 to a file/folder inside
 `~/.claude`. `setup.ps1` copies exactly these items (`CLAUDE.md`, `settings.json`,
-`skills`, `cc-toolkit-wiki-brain`) — nothing else.
+`skills`, `cc-toolkit-wiki-brain`, `statusline.js`, `drift-check.ps1`) — nothing else.
 
 **Plugins are the one exception to "copy".** `~/.claude/plugins/` is runtime state
 (self-updating, machine-specific paths) and stays gitignored — so instead of copying the
@@ -56,14 +58,16 @@ What happens depends on the machine:
 
 - **Clean machine** (no existing Claude Code config) → the toolkit deploys straight away.
 - **Existing config detected** → `setup.ps1` runs in **AUDIT MODE** and changes nothing.
-  It prints:
+  It prints, split by **which side is ahead** (direction is a mtime hint; the content-hash
+  decides *whether* files differ):
   - **In sync** — files already identical.
-  - **CONFLICTS** — files that differ (review which version should win).
-  - **HARVEST CANDIDATES** — files (and plugins) on this machine but *not* in the repo.
-    Pull anything worth keeping UP into cc-toolkit first (commit + push) so you don't lose
-    local work. For a plugin, "pull up" is one command — see below.
+  - **LOCAL NEWER** — edited on this machine, newer than the repo → harvest UP.
+  - **HARVEST CANDIDATES** — files (and plugins) on this machine but *not* in the repo → harvest UP.
+    Pull anything worth keeping into cc-toolkit (commit + push) so you don't lose local work.
+    For files that's `-Harvest` (see below); for a plugin it's `-HarvestPlugins`.
+  - **REPO NEWER** — the repo differs and is newer → deploy DOWN with `-Force`.
   - **WOULD BE ADDED / WOULD BE INSTALLED** — new files, and plugins from `plugins.json`
-    not yet installed here.
+    not yet installed here → deploy DOWN.
 
   Once you've reviewed and harvested, deploy over the existing config with:
 
@@ -88,6 +92,42 @@ git add plugins.json && git commit -m "harvest: <plugin>" && git push
 
 On the next `setup.ps1 -Force` (any machine) the plugin re-installs automatically. The
 `~/.claude/plugins/` folder itself is never committed — only `plugins.json`.
+
+## Files — edit locally, harvest up
+
+The natural workflow is to build a skill / tweak `CLAUDE.md` / grow the brain **locally in
+`~/.claude` first**, then pull it UP into the repo. `-Harvest` is the file-level inverse of
+deploy — the counterpart to `-HarvestPlugins`:
+
+```powershell
+.\deployment\windows\setup.ps1 -Harvest          # dry-run: lists local files not yet in the repo
+.\deployment\windows\setup.ps1 -Harvest -Force   # copies them UP into the repo working tree
+git add -A && git commit -m "harvest: <what>" && git push
+```
+
+It lists **NEW-UP** (here, not in the repo) and **CHANGED-UP** (edited here, newer than the
+repo), copies them into the repo on `-Force`, and **skips** any file where the repo is newer
+(that's a deploy-DOWN, not a harvest). Secrets are never harvested.
+
+## Stay in sync automatically — the drift reminder
+
+A **SessionStart hook** (in `settings.json`) runs `setup.ps1 -Check` once per day and prints a
+one-line nudge when local toolkit files haven't been harvested yet:
+
+```
+cc-toolkit: 2 local file(s) not yet harvested -> run: setup.ps1 -Harvest
+```
+
+Because the hook config is synced but a repo *path* can't be, each machine opts in once by
+pointing `CC_TOOLKIT_HOME` at its clone. Until it's set, the hook no-ops silently.
+
+```powershell
+# one-time per machine (persists across sessions):
+[Environment]::SetEnvironmentVariable('CC_TOOLKIT_HOME', 'C:\path\to\cc-toolkit', 'User')
+```
+
+The check is read-only, throttled to once/day (a `~/.claude/.toolkit-drift-check` marker), and
+never blocks or slows a normal session start.
 
 ## After deploy — start working
 

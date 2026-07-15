@@ -7,6 +7,18 @@
   "agentPushNotifEnabled": true,
   "inputNeededNotifEnabled": true,
   "effortLevel": "high",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -File ~/.claude/drift-check.ps1"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "deny": [
       "Bash(*cleanup.ps1*)",
