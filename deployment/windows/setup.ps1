@@ -73,6 +73,12 @@ $MachinePluginsDir = Join-Path $ClaudeHome 'plugins'
 # actually depends on one (a plugin's marketplace is the segment after its last '@').
 $DefaultMarketplaces = @('claude-plugins-official')
 
+# Keys Claude Code writes into settings.json as runtime plugin state (appended + the whole
+# file reordered on every deploy's plugin hydration). Ignored when comparing settings.json,
+# the same way the gitignored ~/.claude/plugins/ runtime bytes are - plugin intent lives in
+# plugins.json, not here. Extend this list if new runtime keys appear.
+$SettingsRuntimeKeys = @('enabledPlugins', 'extraKnownMarketplaces')
+
 # Header + prerequisite checks: skipped for -Check (must be silent + side-effect-free,
 # since it runs from a SessionStart hook on every launch).
 if (-not $Check) {
@@ -163,6 +169,46 @@ function Get-ContentHash($path) {
     finally { $sha.Dispose() }
 }
 
+# -- Canonical-JSON compare for settings.json -----------------------------------------
+# settings.json drifts after every deploy because plugin hydration rewrites it: it adds
+# runtime keys ($SettingsRuntimeKeys) and reorders everything. Compare it *semantically*
+# instead - drop the runtime keys, sort object keys recursively, then hash - so that noise
+# no longer registers as drift. Any real content change still differs. Non-JSON falls back
+# to the raw content hash.
+function ConvertTo-CanonicalJson($obj) {
+    if ($obj -is [System.Management.Automation.PSCustomObject]) {
+        $ordered = [ordered]@{}
+        foreach ($name in ($obj.PSObject.Properties.Name | Sort-Object)) {
+            $ordered[$name] = ConvertTo-CanonicalJson $obj.$name
+        }
+        return $ordered
+    }
+    if ($obj -is [System.Collections.IEnumerable] -and $obj -isnot [string]) {
+        return @($obj | ForEach-Object { ConvertTo-CanonicalJson $_ })
+    }
+    return $obj
+}
+
+function Get-SettingsHash($path) {
+    $json = Get-Content $path -Raw | ConvertFrom-Json
+    foreach ($k in $SettingsRuntimeKeys) {
+        if ($json.PSObject.Properties.Name -contains $k) { $json.PSObject.Properties.Remove($k) }
+    }
+    $canon = ConvertTo-CanonicalJson $json | ConvertTo-Json -Depth 25 -Compress
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try { return [System.BitConverter]::ToString($sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($canon))) }
+    finally { $sha.Dispose() }
+}
+
+# Route settings.json through the canonical-JSON hash; everything else uses the raw content
+# hash. Robust: a parse error on settings.json falls back to the raw hash.
+function Get-CompareHash($rel, $path) {
+    if ($rel -ieq 'settings.json') {
+        try { return Get-SettingsHash $path } catch { return Get-ContentHash $path }
+    }
+    return Get-ContentHash $path
+}
+
 # -- Classify drift between this machine (~/.claude) and the repo, per toolkit file --
 # Shared by the audit, -Harvest, and -Check so all three agree. Content-hash is
 # authoritative for "differs"; direction (LocalNewer/RepoNewer) is a HINT from
@@ -180,7 +226,7 @@ function Get-ToolkitDrift {
             $dest = Join-Path $ClaudeHome $f.Rel
             if (-not (Test-Path $dest)) {
                 $newRepo += $f.Rel
-            } elseif ((Get-ContentHash $f.Full) -ne (Get-ContentHash $dest)) {
+            } elseif ((Get-CompareHash $f.Rel $f.Full) -ne (Get-CompareHash $f.Rel $dest)) {
                 $repoTime = (Get-Item $f.Full).LastWriteTimeUtc
                 $locTime  = (Get-Item $dest).LastWriteTimeUtc
                 if ($locTime -gt $repoTime) { $localNewer += $f.Rel } else { $repoNewer += $f.Rel }

@@ -2,6 +2,17 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.13.0] — 2026-07-15
+
+### Fixed
+- **`settings.json` no longer false-positives in the drift check after every deploy.** Plugin
+  hydration rewrites the deployed `settings.json` — it appends runtime keys (`enabledPlugins`,
+  `extraKnownMarketplaces`) and reorders the whole file — which made `-Check` and the audit flag
+  it as LOCAL NEWER on every deploy (alarm fatigue on the reminder shipped in 1.12.0). It's now
+  compared **semantically**: canonical JSON that drops the runtime keys (`$SettingsRuntimeKeys`),
+  sorts object keys recursively, then hashes. Any real settings change is still detected; a
+  non-JSON file falls back to the raw content hash.
+
 ## [1.12.0] — 2026-07-15
 
 Systematize the **local → repo harvest** direction (detect + act + remind), closing the
