@@ -23,6 +23,7 @@ settings.local.json
 .claude/.last-cleanup
 .claude/plugins/
 .claude/plans/
+.claude/worktrees/
 
 # === Obsidian vault — keep only the graph colour-groups, ignore volatile UI/app state ===
 **/.obsidian/*
