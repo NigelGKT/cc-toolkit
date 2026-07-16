@@ -20,6 +20,11 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - Session: [[syntheses/2026-07-15-session-harvest-systematization]]
 - Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
 
+## [2026-07-16 02:30] manual | Incident update — Failure 3 recurred a 3rd time (v1.17.0 closeout)
+- Updated: [[incidents/2026-07-16-self-description-drift]] — v1.17.0 (`ec8fb35`) was committed skipping its CHANGELOG entry + step-6 STATUS refresh: the identical drift, after the fix, same session
+- Sharpest evidence for open Q5/Q7: step 6 is unenforced prose, so it did not fire
+- Closeout paperwork done (CHANGELOG v1.17.0 + STATUS refresh); incident stays `open`
+
 ## [2026-07-16 02:00] manual | Incident capture — self-description drift (new incidents/ zone)
 - New: [[incidents/2026-07-16-self-description-drift]] (`status: open`), [[incidents/README]]
 - Schema: [[wiki-schema]] — `incidents/` registered under the self-documentation charter; `incident` page type with its own lifecycle vocabulary (`open`/`analyzed`/`resolved`, overriding the brain-wide reliability statuses); graph colour group 🔴 `path:incidents/`

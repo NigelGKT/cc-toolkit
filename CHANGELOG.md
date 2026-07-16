@@ -2,6 +2,33 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.17.0] — 2026-07-16
+
+Add an **`incidents/` zone** to the global brain and capture the session's first incident.
+Motivated by three self-description failures surfacing in one session (a stale invariant, blind
+wiki probes, and a structurally-stale `STATUS.md`) that had one thing in common: nothing in the
+toolkit could detect any of them. The brain has content-hash drift detection for *files* and
+nothing for semantic drift between what its documents *claim* and what its code *does*.
+
+### Added
+- **`cc-toolkit-wiki-brain/incidents/`** — a zone for failure analyses, kept separate from
+  `harness/` so an open question is never mistaken for settled documentation. New `incident` page
+  type with its own lifecycle vocabulary (`open` / `analyzed` / `resolved`), registered in
+  `wiki-schema.md`; graph colour group 🔴 `path:incidents/`; `incidents/README.md` charter.
+- **`incidents/2026-07-16-self-description-drift.md`** (`status: open`) — the capture. Classifies
+  the three failures as distinct (staleness / migration gap / structural), records the
+  agent-behaviour layer (procedure trusted over evidence), and parks seven open design questions.
+  Highest-leverage unshipped candidate: a Bootstrap self-guard that refuses to scaffold into a
+  populated folder — which would make the wiki-detection footgun harmless regardless of probe
+  correctness.
+
+### Note
+- The incident's Failure 3 (structurally-stale `STATUS.md`) **recurred a third time closing out
+  this very version** — `ec8fb35` was committed as `v1.17.0` without its CHANGELOG entry or a
+  `STATUS.md` refresh, exactly the drift the new close-out step 6 was written to prevent. Step 6
+  is unenforced prose, so it did not fire. Recorded in the incident as live evidence for open
+  questions 5 and 7 (rituals whose artifacts are false at rest; prose guardrails have no teeth).
+
 ## [1.16.0] — 2026-07-16
 
 Fix a **live footgun**: `/s.wiki` invoked from the cc-toolkit repo root would fail to detect the

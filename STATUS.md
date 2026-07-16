@@ -10,10 +10,11 @@
 
 ## Version
 
-- **Last released: v1.16.0** (2026-07-16) — **committed and pushed to `origin/main`.** Working
-  tree clean apart from `settings.json` (see open threads).
-- Shipped this session, three commits (feature / fix / note — per the `376646e` precedent where
-  one note covered two versions):
+- **Last released: v1.17.0** (2026-07-16, `ec8fb35` + closeout `chore`) — **committed and pushed
+  to `origin/main`.** Working tree clean apart from `settings.json` (see open threads). The
+  `incidents/` zone + first incident capture (self-description drift).
+- Shipped this session, in order — `v1.15.0` (`2db0786`), `v1.16.0` (`bd9d242`), session note
+  (`6fdc0d3`), STATUS/runbook `chore` (`b113d8b`), `v1.17.0` incident (`ec8fb35`):
   - **v1.15.0** (`2db0786`) — a `harness/` zone in `cc-toolkit-wiki-brain/`: self-documentation
     of the toolkit itself (memory routing, deploy/harvest lifecycle, skills catalog), distinct
     from the brain's transferable-patterns charter. `wiki-schema.md` amended to a formal dual
@@ -32,8 +33,10 @@
 
 > **Note on this section:** it is refreshed *after* push (close-out runbook step 6). Wrap-up
 > writes STATUS.md at step 3, before the commit exists — so without that final pass this file
-> always claims "not yet committed" for work that already shipped. That is exactly how the
-> v1.14.0 entry drifted, and it recurred on 2026-07-16 before being caught.
+> always claims "not yet committed" for work that already shipped. That is how the v1.14.0 entry
+> drifted, and it recurred **twice more on 2026-07-16** — once before the step-6 fix, then again
+> closing out v1.17.0 *after* the fix, because step 6 is unenforced prose. See
+> [[cc-toolkit-wiki-brain/incidents/2026-07-16-self-description-drift]].
 
 ## Deploy state
 
@@ -45,6 +48,11 @@
 
 ## Pending / open threads
 
+- **⭐ NEXT — revisit the open incident.** [[cc-toolkit-wiki-brain/incidents/2026-07-16-self-description-drift]]
+  (`status: open`). Root causes known, design response deliberately undecided. Seven design
+  questions parked; the highest-leverage one is a **Bootstrap self-guard** (refuse to scaffold
+  into a populated folder / repo root) — the only fix that survives an incorrect probe. This is
+  the re-anchor point for the next session.
 - **Do not stage `settings.json`.** It shows modified from an unrelated pre-existing drift
   (local `effortLevel: xhigh` vs repo `high`) swept up by the harvest's all-or-nothing file
   scan — this thread is still open, decide it separately. Note `/model` writes here too, so it
@@ -64,9 +72,10 @@
 
 ## Reference
 
-- Global brain: `cc-toolkit-wiki-brain/` (rides to every machine via deploy) — dual charter as
-  of v1.15.0: `concepts/`/`playbooks/` (transferable knowledge) + `harness/` (toolkit
-  self-documentation). Reused as-is — not a per-project brain.
+- Global brain: `cc-toolkit-wiki-brain/` (rides to every machine via deploy) — dual charter:
+  `concepts/`/`playbooks/` (transferable knowledge) + self-documentation (`harness/` how it
+  works, since v1.15.0; `incidents/` how it failed, since v1.17.0). Reused as-is — not a
+  per-project brain.
 - Harvest/deploy lifecycle: `setup.ps1` (`-Force` deploy down, `-Harvest` copy up, `-Check` drift).
 
 ---

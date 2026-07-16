@@ -73,6 +73,17 @@ same reason, and would have failed every time.
 Worse: `STATUS.md` is the *designated re-anchor point* for the next session — so its failure mode
 is to actively mislead, sending the reader to redo shipped work.
 
+**Third recurrence — after the fix, while closing out this incident.** The response to Failure 3
+(close-out **step 6**: refresh `STATUS.md` *after* push) was written and shipped in `b113d8b`.
+Then `v1.17.0` (`ec8fb35`, this very incident's zone) was committed **without** its CHANGELOG
+entry and **without** the step-6 STATUS refresh — the identical drift, a third time, in the same
+session, immediately after the fix. The next-session prompt "lets continue where we left off"
+landed on a half-closed version. **This is the sharpest evidence in the whole incident:** step 6
+is *prose an agent must remember to execute*, not an enforced gate, so it did not fire. It
+directly answers open questions 5 and 7 below — a fix that lives only as a written instruction
+inherits the exact failure mode it was meant to cure. Any response that ends at "document the
+step" is choosing the option this line just falsified.
+
 ---
 
 ## Layer 2 — Agent behaviour (independent of the bugs above)
@@ -164,9 +175,14 @@ For the revisit. Deliberately **not** answered here.
 - **v1.16.0** — scope-gated `## Wiki` pointer + one-level `*/wiki-schema.md` glob fallback in
   both probes. **Layer 1 only** — a careless read still skips the fallback, and Bootstrap remains
   unguarded (question 2).
-- **`chore` (b113d8b)** — close-out runbook step 6: refresh `STATUS.md` *after* push. Fixes
-  Failure 3's ordering for this one ritual only (question 5).
-- **Nothing addresses Layer 2**, question 2, or question 3.
+- **`chore` (b113d8b)** — close-out runbook step 6: refresh `STATUS.md` *after* push. **Proven
+  insufficient the same session** — v1.17.0 was committed skipping it (see Failure 3, third
+  recurrence). It fixes the *ordering* but not the *enforcement*; a step only an agent remembers
+  is not a guard (question 5, question 7).
+- **v1.17.0 closeout `chore`** — belated CHANGELOG entry + step-6 STATUS refresh for `ec8fb35`,
+  plus this evidence. Completes the paperwork; does **not** prevent the next recurrence.
+- **Nothing addresses Layer 2**, question 2, question 3, or the enforcement gap the third
+  recurrence exposed. That is the whole point of leaving this `open`.
 
 ## Related
 - [[../syntheses/2026-07-16-session-harness-zone-and-wiki-detection]] — the session record
