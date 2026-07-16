@@ -12,16 +12,27 @@ Default conventions (folder layout, page types, frontmatter, citation rules) liv
 
 ## Purpose
 
-Distilled, **transferable** knowledge — patterns, architectures, and client-agnostic
-lessons that apply beyond the project they were learned in. This is the compounding well:
-every project's wiki brain feeds its best concepts up here, scrubbed of specifics, so the
-knowledge rides to every machine and every future engagement.
+This brain has a **dual charter**:
 
-**This is the source of truth.** Curate it in the `cc-toolkit` repo clone, commit, push,
-then redeploy. **Never edit the deployed `~/.claude/cc-toolkit-wiki-brain/` directly** — that's a deploy
-target, like all other toolkit config.
+1. **Transferable knowledge** (`concepts/`, `playbooks/`) — distilled, client-agnostic
+   patterns, architectures, and lessons that apply beyond the project they were learned in.
+   This is the compounding well: every project's wiki brain feeds its best concepts up here,
+   scrubbed of specifics, so the knowledge rides to every machine and every future engagement.
+2. **Harness self-documentation** (`harness/`) — the operating manual for the Claude Code
+   setup itself: memory architecture, deploy/harvest lifecycle, skills catalog, session
+   surface. Unlike (1), this content is *about* cc-toolkit and is expected to name its files,
+   scripts, and skills directly — see the carve-outs under House style.
+
+**The repo clone is the source of truth.** Prefer curating there — commit, push, redeploy.
+Local editing of the deployed `~/.claude/cc-toolkit-wiki-brain/` is supported via `setup.ps1
+-Harvest` (the inverse of deploy): edit locally, harvest promptly, review, commit, push. An
+unharvested local edit is destroyed by the next `-Force` deploy, and the drift-check hook
+(`setup.ps1 -Check`) is the only guard — don't let local drift sit.
 
 ## What belongs here / what does NOT
+
+*(Applies to the transferable-knowledge charter — `concepts/`/`playbooks/`. For harness
+self-documentation, see the `harness` page type below — it has its own scope test.)*
 
 | Promote UP (belongs here) | Keep in the project wiki |
 |---|---|
@@ -51,7 +62,7 @@ stays client-agnostic so a concept reads as a general pattern.
 
 ## Page types
 
-The dominant two:
+Three primary types:
 
 ### `concept` — a transferable pattern or idea
 Folder: `concepts/`. Slug: kebab-case pattern name (`convert-at-edge-display-lens.md`).
@@ -65,8 +76,16 @@ Consulting patterns, gotchas, and repeatable checklists distilled from real enga
 One lesson per file, scrubbed. Frontmatter: `type: playbook`, `tags`, `origin`, `updated`,
 `status`.
 
+### `harness` — self-documentation of the Claude Code toolkit itself
+Folder: `harness/`. Slug: kebab-case (`memory-architecture.md`). Process maps and catalogs
+for `~/.claude`/`cc-toolkit` itself — memory routing, deploy/harvest lifecycle, skills,
+session surface. Frontmatter: `type: harness`, `tags`, `origin`, `updated`, `status`.
+Body: unlike `concept`/`playbook`, may name toolkit files, scripts, and skills directly (see
+House style carve-outs). Ends with `## Related`; a `## Transfer note` is optional, not
+required — most harness pages describe *this* toolkit rather than a reusable pattern.
+
 The `source`, `entity`, and `synthesis` defaults remain available if ever needed, but the
-brain is concept- and playbook-led.
+brain is concept-, playbook-, and harness-led.
 
 ## Graph view colour groups
 
@@ -78,6 +97,7 @@ Root files (`index`, `log`, `README`, `wiki-schema`) render in the theme default
 | Concept | `path:concepts/` | 🟢 | `#22c55e` | 2278750 |
 | Playbook | `path:playbooks/` | 🟣 | `#8b5cf6` | 9133302 |
 | Synthesis | `path:syntheses/` | 🟡 | `#f59e0b` | 16096779 |
+| Harness | `path:harness/` | 🔵 | `#3b82f6` | 3900150 |
 | Source / Raw | `(path:sources/ OR path:raw/)` | ⚫ | `#6b7280` | 7041664 |
 
 When adding new folders/page types, insert a group **above** the source/raw catch-all.
@@ -91,6 +111,14 @@ When adding new folders/page types, insert a group **above** the source/raw catc
 - **Code identifiers in backticks** only when generic (`point_value`, `net_position`).
 - **Dates absolute.** **Status**: `draft` / `stable` / `stale` / `contested`.
 
+**Carve-outs for `harness/`:**
+- The "no project internals" rule targets *client* internals. The harness zone's subject is
+  the toolkit itself, so naming `setup.ps1`, `settings.json`, `s.wiki`, and similar is
+  expected and required for these pages to be useful.
+- The mandatory `## Transfer note` applies to `concept` pages. `harness` pages end with
+  `## Related` instead, and add a `## Transfer note` only if the process genuinely
+  generalizes beyond this toolkit.
+
 ## Flows (how the brain lives)
 
 - **Promote (in)** — `s.wrap-up` Part C flags a generalizable concept/lesson at session end.
@@ -101,7 +129,8 @@ When adding new folders/page types, insert a group **above** the source/raw catc
 
 ## Notes to the skill
 
-- Curation happens in the **repo clone**, never the deployed copy.
+- Curation prefers the **repo clone**; local edits to the deployed copy are supported via
+  `-Harvest` — harvest promptly, don't let it sit (see Purpose).
 - Do not paste large code blocks — describe the pattern; keep it language/framework-neutral.
 - A concept that just restates one project's code adds nothing — capture the *why* and the
   *transfer*, or don't promote it.

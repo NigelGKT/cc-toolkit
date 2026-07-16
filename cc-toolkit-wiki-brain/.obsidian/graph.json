@@ -29,6 +29,13 @@
       }
     },
     {
+      "query": "path:harness/",
+      "color": {
+        "a": 1,
+        "rgb": 3900150
+      }
+    },
+    {
       "query": "(path:sources/ OR path:raw/)",
       "color": {
         "a": 1,
