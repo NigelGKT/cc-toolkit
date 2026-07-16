@@ -10,25 +10,30 @@
 
 ## Version
 
-- **Last released: v1.14.0** (2026-07-15, commit `2378a73`) — the three-tier memory
-  architecture. See `CHANGELOG.md`.
-- **Harvested into the working tree, not yet committed (this session)** — two versions' worth,
-  intended as **three commits** (feature, fix, then the session note separately, per the
-  `376646e` precedent where one note covered v1.12.0 + v1.13.0):
-  - **v1.15.0** — a `harness/` zone in `cc-toolkit-wiki-brain/`: self-documentation of the
-    toolkit itself (memory routing, deploy/harvest lifecycle, skills catalog), distinct from the
-    brain's transferable-patterns charter. `wiki-schema.md` amended to a formal dual charter; the
-    deploy playbook extended with the file-harvest + drift-check-hook runbooks it was missing;
-    the stale "never edit the deployed copy" invariant amended (it predated `-Harvest`).
-  - **v1.16.0** — wiki detection fix. `/s.wiki` from the repo root would have **bootstrapped a
-    fresh vault over it**; `s.wrap-up` silently skipped its session note for the same reason.
-    Scope-gated `## Wiki` pointer in the global `CLAUDE.md` + subfolder-glob fallback in both
-    skill probes + session close-out runbook.
-  - **Session note** — `syntheses/2026-07-16-session-harness-zone-and-wiki-detection.md`,
-    covering both versions.
+- **Last released: v1.16.0** (2026-07-16) — **committed and pushed to `origin/main`.** Working
+  tree clean apart from `settings.json` (see open threads).
+- Shipped this session, three commits (feature / fix / note — per the `376646e` precedent where
+  one note covered two versions):
+  - **v1.15.0** (`2db0786`) — a `harness/` zone in `cc-toolkit-wiki-brain/`: self-documentation
+    of the toolkit itself (memory routing, deploy/harvest lifecycle, skills catalog), distinct
+    from the brain's transferable-patterns charter. `wiki-schema.md` amended to a formal dual
+    charter; the deploy playbook extended with the file-harvest + drift-check-hook runbooks it
+    was missing; the stale "never edit the deployed copy" invariant amended (it predated
+    `-Harvest`).
+  - **v1.16.0** (`bd9d242`) — wiki detection fix. `/s.wiki` from the repo root would have
+    **bootstrapped a fresh vault over it**; `s.wrap-up` silently skipped its session note for the
+    same reason. Scope-gated `## Wiki` pointer in the global `CLAUDE.md` + subfolder-glob
+    fallback in both skill probes + session close-out runbook.
+  - **Session note** (`6fdc0d3`) —
+    `syntheses/2026-07-16-session-harness-zone-and-wiki-detection.md`, covering both versions.
 
-  All authored in `~/.claude/cc-toolkit-wiki-brain/` and harvested up — see the new close-out
-  runbook in the deploy playbook for why that takes two `-Harvest` passes.
+  All authored in `~/.claude/cc-toolkit-wiki-brain/` and harvested up — see the close-out runbook
+  in the deploy playbook for why that takes two `-Harvest` passes.
+
+> **Note on this section:** it is refreshed *after* push (close-out runbook step 6). Wrap-up
+> writes STATUS.md at step 3, before the commit exists — so without that final pass this file
+> always claims "not yet committed" for work that already shipped. That is exactly how the
+> v1.14.0 entry drifted, and it recurred on 2026-07-16 before being caught.
 
 ## Deploy state
 
@@ -40,7 +45,6 @@
 
 ## Pending / open threads
 
-- **Commit + push** the three commits above.
 - **Do not stage `settings.json`.** It shows modified from an unrelated pre-existing drift
   (local `effortLevel: xhigh` vs repo `high`) swept up by the harvest's all-or-nothing file
   scan — this thread is still open, decide it separately. Note `/model` writes here too, so it

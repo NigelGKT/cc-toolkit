@@ -176,6 +176,17 @@ read-before / write-after sandwich around `s.wrap-up`:
 5. **Commit + push** from the repo clone. Session notes conventionally get their **own** commit
    (`wiki:` / `brain:` prefix), separate from the feature commit — one note may cover several
    versions.
+6. **Refresh `STATUS.md` — after the push, not before.** Record the released version + commit
+   SHAs and drop the "pending commit" line. Small `chore:` commit. **This step is not optional
+   bookkeeping — it is the only thing that makes STATUS.md true.**
+
+**Why step 6 exists (the stale-STATUS trap):** wrap-up writes `STATUS.md` at step 3, but the
+commit doesn't exist until step 5. So at the moment of push, STATUS.md *always* claims the work
+is "not yet committed" — describing a world one step behind reality. Since STATUS.md is the
+designated re-anchor point for the next session, a stale one actively misleads: it sends you to
+redo work that already shipped. This has bitten twice — the v1.14.0 entry claimed uncommitted
+work that was already pushed, and the same drift recurred on 2026-07-16. STATUS.md is repo-local
+(not on the deploy manifest), so edit it in the clone directly; no harvest needed.
 
 **Why two harvests (not redundancy):** every phase that *authors into* `~/.claude` ends with a
 harvest. The work is phase one; the session note is phase two. The harvest between them exists
