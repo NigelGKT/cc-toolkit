@@ -20,6 +20,12 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - Session: [[syntheses/2026-07-15-session-harvest-systematization]]
 - Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
 
+## [2026-07-17 00:00] ingest | Session note — s.wiki Bootstrap self-guard (v1.18.0)
+- Session: [[syntheses/2026-07-17-session-bootstrap-self-guard]]
+- Shipped incident Q2 for `s.wiki`: Bootstrap Step 0 safety gate refuses to scaffold into a non-empty `WIKI_ROOT` (repo root / project root / any pre-existing files) without explicit confirmation
+- Verified by scratch-fixture simulation; true end-to-end run deferred (needs skill reload)
+- Updated: [[incidents/2026-07-16-self-description-drift]] — Q2 marked shipped for `s.wiki`; `s.wrap-up` mirror failure (silent omission, not destruction) left open for a visibility fix
+
 ## [2026-07-16 02:30] manual | Incident update — Failure 3 recurred a 3rd time (v1.17.0 closeout)
 - Updated: [[incidents/2026-07-16-self-description-drift]] — v1.17.0 (`ec8fb35`) was committed skipping its CHANGELOG entry + step-6 STATUS refresh: the identical drift, after the fix, same session
 - Sharpest evidence for open Q5/Q7: step 6 is unenforced prose, so it did not fire

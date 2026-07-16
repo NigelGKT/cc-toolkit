@@ -2,7 +2,7 @@
 type: incident
 tags: [self-description, documentation-decay, detection-gap, agent-behaviour, bootstrap]
 origin: GKT cc-toolkit (harness zone session, 2026-07-16)
-updated: 2026-07-16
+updated: 2026-07-17
 status: open
 ---
 
@@ -153,8 +153,11 @@ For the revisit. Deliberately **not** answered here.
    will scaffold into a populated directory. A *"refuse to scaffold into a non-empty folder /
    repo root without explicit confirmation"* check would have made Failure 2 **harmless
    regardless of whether the probe was right**. Guards that don't depend on the correctness of
-   the thing they guard are the only ones that survive an incorrect probe. **This is the single
-   highest-leverage candidate and is currently unshipped.**
+   the thing they guard are the only ones that survive an incorrect probe. **Shipped for `s.wiki`
+   in v1.18.0** — Bootstrap's new Step 0 safety gate; see *Responses shipped so far*. The analogous
+   guard does **not** apply to `s.wrap-up`: its wrong-probe failure is *omission* (it silently skips
+   the session note), not *destruction*, so there is no write to guard — that side needs a
+   visibility fix and stays open.
 3. **Does adding documentation reduce or increase this risk?** See the tension above. What is
    the maintenance obligation a new doc incurs, and who discharges it?
 4. **Does "state the why, not just the rule" actually make docs age better?** Testable
@@ -181,8 +184,15 @@ For the revisit. Deliberately **not** answered here.
   is not a guard (question 5, question 7).
 - **v1.17.0 closeout `chore`** — belated CHANGELOG entry + step-6 STATUS refresh for `ec8fb35`,
   plus this evidence. Completes the paperwork; does **not** prevent the next recurrence.
-- **Nothing addresses Layer 2**, question 2, question 3, or the enforcement gap the third
-  recurrence exposed. That is the whole point of leaving this `open`.
+- **v1.18.0** — **question 2 shipped for `s.wiki`.** Bootstrap gains a mandatory **Step 0 safety
+  gate**: it inspects the final `WIKI_ROOT` on disk and refuses to scaffold into a non-empty target
+  (repo root / project root / any pre-existing files) without explicit confirmation. This is the
+  first response here that does **not** depend on the probe being right — a wrong probe is downgraded
+  from data-loss to a question. Verified by scratch-fixture simulation; a true end-to-end run is
+  deferred (needs a skill reload — question 7). `s.wrap-up` intentionally untouched: its mirror
+  failure is silent omission, which needs a visibility fix, not a write-guard.
+- **Still unaddressed:** Layer 2, question 3, and the enforcement gap the third recurrence exposed;
+  question 2 remains open for `s.wrap-up`. That is why this stays `open`.
 
 ## Related
 - [[../syntheses/2026-07-16-session-harness-zone-and-wiki-detection]] — the session record
