@@ -1,7 +1,7 @@
 # Global Brain — Index
 
 The cross-project knowledge well. Deploys to every machine via `cc-toolkit`.
-Last updated: 2026-07-15.
+Last updated: 2026-07-16.
 
 ## Concepts
 
@@ -14,7 +14,16 @@ Last updated: 2026-07-15.
 
 - [[playbooks/cc-toolkit-deploy-lifecycle]] — the toolkit's own runbook: spin up → work → grow the brain → clean exit (with flowchart)
 
+## Harness
+
+Self-documentation of the Claude Code toolkit itself — see [[harness/README|harness/]] for the zone's charter.
+
+- [[harness/harness-overview]] — anchor note: meta-map of the whole `~/.claude` tooling (with flowchart)
+- [[harness/memory-architecture]] — the two memory systems (harness auto-memory vs. the three-tier project convention) and the routing rule between them
+- [[harness/skills-catalog]] — `s.wiki`, `s.wrap-up`, `s.goal-run`, and the `obsidian@obsidian-skills` plugin bundle: triggers + flows
+
 ## Syntheses
 
 - [[syntheses/2026-07-10-session-plugin-harvest]] — plugin harvest + hydrate for cc-toolkit (v1.8.0)
 - [[syntheses/2026-07-15-session-harvest-systematization]] — file harvest (-Harvest) + direction-aware audit + drift-check hook + settings.json semantic compare (v1.12.0–v1.13.0)
+- [[syntheses/2026-07-16-session-harness-zone-and-wiki-detection]] — dual charter + `harness/` zone, stale invariant amended, `/s.wiki` bootstrap footgun fixed (v1.15.0–v1.16.0)

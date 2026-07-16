@@ -19,3 +19,19 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 ## [2026-07-15 19:00] ingest | Session note — cc-toolkit harvest systematization (v1.12.0 + v1.13.0)
 - Session: [[syntheses/2026-07-15-session-harvest-systematization]]
 - Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
+
+## [2026-07-16 01:00] ingest | Session note — harness zone + wiki detection (v1.15.0 + v1.16.0)
+- Session: [[syntheses/2026-07-16-session-harness-zone-and-wiki-detection]]
+- Covers both versions in one note (precedent: the 2026-07-15 note covered v1.12.0 + v1.13.0)
+
+## [2026-07-16 00:30] manual | Fix wiki detection — subfolder brains + scope-gated global pointer
+- Global `CLAUDE.md`: new scope-gated `## Wiki` section (applies only to `cc-toolkit` / `~/.claude` roots)
+- `s.wiki` + `s.wrap-up` probes: glob one level down for `*/wiki-schema.md` before concluding "no wiki"
+- Root cause: `/s.wiki` from the cc-toolkit root would bootstrap a fresh vault over the repo — both probes missed the subfolder brain, and cc-toolkit's CLAUDE.md *is* the global contract so it carried no pointer
+- Updated: [[playbooks/cc-toolkit-deploy-lifecycle]] — session close-out runbook (work → harvest → wrap-up → harvest → commit)
+
+## [2026-07-16 00:00] manual | Dual charter — add harness/ zone for toolkit self-documentation
+- Schema: [[wiki-schema]] amended — dual charter declared, `harness` page type registered, 2 house-style carve-outs added, curation invariant amended (local editing via `-Harvest` now explicitly supported)
+- New: [[harness/README]], [[harness/harness-overview]], [[harness/memory-architecture]], [[harness/skills-catalog]]
+- Updated: [[playbooks/cc-toolkit-deploy-lifecycle]] — general file-harvest runbook, drift-check hook runbook, invariant amendment, harness cross-links
+- Graph: `.obsidian/graph.json` — new colour group for `path:harness/`
