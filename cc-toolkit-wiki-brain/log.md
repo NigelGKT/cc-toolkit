@@ -20,6 +20,12 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - Session: [[syntheses/2026-07-15-session-harvest-systematization]]
 - Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
 
+## [2026-07-16 02:00] manual | Incident capture — self-description drift (new incidents/ zone)
+- New: [[incidents/2026-07-16-self-description-drift]] (`status: open`), [[incidents/README]]
+- Schema: [[wiki-schema]] — `incidents/` registered under the self-documentation charter; `incident` page type with its own lifecycle vocabulary (`open`/`analyzed`/`resolved`, overriding the brain-wide reliability statuses); graph colour group 🔴 `path:incidents/`
+- Captures three failures + the agent-behaviour layer; finding is that none were detectable — the toolkit has drift detection for files, none for semantic self-description
+- **Open, not resolved** — parked for deliberate design work; highest-leverage unshipped candidate is a Bootstrap self-guard (refuse to scaffold into a populated folder)
+
 ## [2026-07-16 01:00] ingest | Session note — harness zone + wiki detection (v1.15.0 + v1.16.0)
 - Session: [[syntheses/2026-07-16-session-harness-zone-and-wiki-detection]]
 - Covers both versions in one note (precedent: the 2026-07-15 note covered v1.12.0 + v1.13.0)

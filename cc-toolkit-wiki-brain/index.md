@@ -22,6 +22,12 @@ Self-documentation of the Claude Code toolkit itself — see [[harness/README|ha
 - [[harness/memory-architecture]] — the two memory systems (harness auto-memory vs. the three-tier project convention) and the routing rule between them
 - [[harness/skills-catalog]] — `s.wiki`, `s.wrap-up`, `s.goal-run`, and the `obsidian@obsidian-skills` plugin bundle: triggers + flows
 
+## Incidents
+
+How the toolkit has failed — open questions with evidence attached, **not** settled guidance. See [[incidents/README|incidents/]] for the zone's charter and lifecycle.
+
+- 🔴 **open** — [[incidents/2026-07-16-self-description-drift]] — three self-description failures in one session (stale invariant / blind wiki probes / stale STATUS.md); nothing in the system could detect any of them. Root causes known, design response undecided.
+
 ## Syntheses
 
 - [[syntheses/2026-07-10-session-plugin-harvest]] — plugin harvest + hydrate for cc-toolkit (v1.8.0)

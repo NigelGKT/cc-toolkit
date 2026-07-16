@@ -36,6 +36,13 @@
       }
     },
     {
+      "query": "path:incidents/",
+      "color": {
+        "a": 1,
+        "rgb": 15680580
+      }
+    },
+    {
       "query": "(path:sources/ OR path:raw/)",
       "color": {
         "a": 1,

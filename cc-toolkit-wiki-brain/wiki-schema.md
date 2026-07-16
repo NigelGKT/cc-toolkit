@@ -18,10 +18,11 @@ This brain has a **dual charter**:
    patterns, architectures, and lessons that apply beyond the project they were learned in.
    This is the compounding well: every project's wiki brain feeds its best concepts up here,
    scrubbed of specifics, so the knowledge rides to every machine and every future engagement.
-2. **Harness self-documentation** (`harness/`) — the operating manual for the Claude Code
-   setup itself: memory architecture, deploy/harvest lifecycle, skills catalog, session
-   surface. Unlike (1), this content is *about* cc-toolkit and is expected to name its files,
-   scripts, and skills directly — see the carve-outs under House style.
+2. **Harness self-documentation** (`harness/`, `incidents/`) — the operating manual for the
+   Claude Code setup itself: memory architecture, deploy/harvest lifecycle, skills catalog,
+   session surface, plus the record of how it has failed. Unlike (1), this content is *about*
+   cc-toolkit and is expected to name its files, scripts, and skills directly — see the
+   carve-outs under House style.
 
 **The repo clone is the source of truth.** Prefer curating there — commit, push, redeploy.
 Local editing of the deployed `~/.claude/cc-toolkit-wiki-brain/` is supported via `setup.ps1
@@ -84,8 +85,29 @@ Body: unlike `concept`/`playbook`, may name toolkit files, scripts, and skills d
 House style carve-outs). Ends with `## Related`; a `## Transfer note` is optional, not
 required — most harness pages describe *this* toolkit rather than a reusable pattern.
 
+### `incident` — a record of how the toolkit failed, and what it means
+Folder: `incidents/`. Slug: `<YYYY-MM-DD>-<kebab-slug>.md`. A focused analysis of a failure (or
+a cluster of related ones): what happened, root cause, what it reveals, and the design questions
+left open. **Not** a playbook — a playbook is a settled procedure; an incident is the raw
+material a playbook might later be distilled from.
+
+Frontmatter: `type: incident`, `tags`, `origin`, `updated`, plus a **lifecycle-specific status**:
+
+| `status:` | Means |
+|---|---|
+| `open` | Captured; root cause may be known, but the design response is not decided |
+| `analyzed` | Root cause + design response agreed; not yet implemented |
+| `resolved` | Response shipped — say *where* (version / commit / page) in the body |
+
+This overrides the brain-wide `draft`/`stable`/`stale`/`contested` vocabulary, which describes a
+page's *reliability*; an incident needs to track its own *lifecycle* instead. Incidents live in
+their own zone precisely so an open one is never mistaken for settled documentation.
+
+**Incidents state findings; they do not prescribe.** If an incident's design work concludes in a
+rule, that rule belongs in `playbooks/` or `harness/` — link it and set `status: resolved`.
+
 The `source`, `entity`, and `synthesis` defaults remain available if ever needed, but the
-brain is concept-, playbook-, and harness-led.
+brain is concept-, playbook-, harness-, and incident-led.
 
 ## Graph view colour groups
 
@@ -98,6 +120,7 @@ Root files (`index`, `log`, `README`, `wiki-schema`) render in the theme default
 | Playbook | `path:playbooks/` | 🟣 | `#8b5cf6` | 9133302 |
 | Synthesis | `path:syntheses/` | 🟡 | `#f59e0b` | 16096779 |
 | Harness | `path:harness/` | 🔵 | `#3b82f6` | 3900150 |
+| Incident | `path:incidents/` | 🔴 | `#ef4444` | 15680580 |
 | Source / Raw | `(path:sources/ OR path:raw/)` | ⚫ | `#6b7280` | 7041664 |
 
 When adding new folders/page types, insert a group **above** the source/raw catch-all.
