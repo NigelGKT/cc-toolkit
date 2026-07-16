@@ -11,10 +11,14 @@ A skill for building and maintaining a persistent, Obsidian-compatible knowledge
 
 When triggered, do this in order before responding to the user's actual request:
 
-1. **Probe** — resolve the wiki root, then check for an existing wiki:
-   a. If `CLAUDE.md` exists in CWD, scan it for a `## Wiki` section. If that section contains a path (e.g. `wiki lives at ./Some Folder/` or `wiki-path: ./Some Folder/`), set `WIKI_ROOT` to that path.
-   b. Otherwise set `WIKI_ROOT = .` (current directory).
-   c. Check whether `<WIKI_ROOT>/wiki-schema.md` exists.
+1. **Probe** — resolve the wiki root, then check for an existing wiki. Work through these in order and stop at the first hit:
+   a. If `CLAUDE.md` exists in CWD, scan it for a `## Wiki` section. If that section contains a path (e.g. `wiki lives at ./Some Folder/` or `wiki-path: ./Some Folder/`), set `WIKI_ROOT` to that path. **Honour any scope gate the section states** — a pointer may declare it applies only to certain roots.
+   b. Otherwise, if `./wiki-schema.md` exists, set `WIKI_ROOT = .` (current directory).
+   c. Otherwise, **glob one level down for `*/wiki-schema.md`**. Exactly one match → set `WIKI_ROOT` to that folder. Several matches → ask which. **A brain living in a subfolder is the norm, not the exception — never conclude "no wiki" until this check also comes up empty.**
+   d. Only if a, b, and c all miss, set `WIKI_ROOT = .` and treat the wiki as genuinely absent.
+   e. Check whether `<WIKI_ROOT>/wiki-schema.md` exists.
+
+   **Bootstrap is destructive-by-surprise if this probe is wrong** — it scaffolds `index.md`, `log.md`, and folders into `WIKI_ROOT`. Scaffolding over a populated repo root because a subfolder brain went undetected is the failure mode step (c) exists to prevent.
 2. **If absent** → run the **Bootstrap workflow** (below).
 3. **If present** → read `<WIKI_ROOT>/wiki-schema.md` to load domain-specific conventions (folder overrides, custom page types, house style). Then route the user's request:
    - "ingest / add this / I read / process this source" → **Ingest workflow**

@@ -2,7 +2,7 @@
 type: playbook
 tags: [deploy, lifecycle, runbook, cc-toolkit, meta]
 origin: GKT cc-toolkit (toolkit deploy + cleanup lifecycle, 2026)
-updated: 2026-07-10
+updated: 2026-07-16
 status: stable
 ---
 
@@ -92,6 +92,49 @@ nvm + Claude via npm), `--force` to deploy.
 Query the other direction before solving anything cold: *"what does my brain say about X"* →
 `s.wiki` against `~/.claude/cc-toolkit-wiki-brain/`.
 
+## Runbook — Harvest local files (general, any toolkit item)
+
+The inverse of deploy, for **files** (`plugins.json` harvest is separate — see below). Lists
+toolkit files that exist on this machine but not in the repo (NEW-UP), or that were edited
+here and are newer than the repo copy (CHANGED-UP), so you can pull local work UP before it's
+lost to the next deploy.
+
+```powershell
+.\deployment\windows\setup.ps1 -Harvest          # dry run - lists candidates, copies nothing
+.\deployment\windows\setup.ps1 -Harvest -Force   # copies NEW-UP + CHANGED-UP into the repo tree
+```
+
+Classification is **content-hash authoritative** (a real byte/semantic diff), with mtime used
+only as a direction *hint* — a fresh `git clone` resets mtimes, so right after cloning treat
+"REPO NEWER" results with care rather than trusting the hint blindly. Files where the repo is
+newer are **skipped**, not harvested (that direction is a deploy, not a harvest). Secrets
+(`.credentials.json`, `settings.local.json`) are never harvested regardless.
+
+`settings.json` gets special handling: rather than a raw byte diff, it's compared after
+stripping the runtime keys plugin hydration writes (`enabledPlugins`,
+`extraKnownMarketplaces`) and canonicalizing key order — so a deploy's own side-effects never
+register as drift needing harvest.
+
+**Always run the dry run first and read the candidate list before `-Force`** — harvest has no
+per-file filter; it sweeps up everything classified as a candidate in one pass, including
+unrelated local drift that happens to exist alongside the change you meant to harvest.
+
+## Runbook — Drift-check hook (SessionStart)
+
+`drift-check.ps1` wraps `setup.ps1 -Check` and is wired as the `SessionStart` hook in
+`settings.json`, so it runs once per session launch. It is silent and side-effect-free by
+design — no installs, no deploy, just a verdict:
+
+- Throttled to once per 24h via a marker file (`~/.claude/.toolkit-drift-check`), so it adds
+  no latency to repeated launches the same day.
+- Prints **one line** only if local toolkit files exist that aren't yet harvested (e.g.
+  `cc-toolkit: 1 local file(s) not yet harvested -> run: setup.ps1 -Harvest`); prints nothing
+  otherwise.
+- Wrapped in try/catch — a hook must never break session start, so any error is swallowed.
+
+This is the **only** standing guard against local edits being silently destroyed by the next
+`-Force` deploy — see the amended invariant below.
+
 ## Runbook — Harvest a plugin (install local, ride everywhere)
 
 Plugins are the one item that is **hydrated, not copied**. `~/.claude/plugins/` is runtime
@@ -117,6 +160,39 @@ The audit (`setup.ps1` on an existing config) lists installed-but-unrecorded plu
 **HARVEST CANDIDATES (plugins)** and manifest-but-not-installed ones as **WOULD BE
 INSTALLED** — the same intent comparison, never a byte diff.
 
+## Runbook — Session close-out (work → harvest → wrap-up → harvest → commit)
+
+The canonical order for a cc-toolkit session. The sequence is **not** arbitrary — it is a
+read-before / write-after sandwich around `s.wrap-up`:
+
+1. **Work** in `~/.claude` (skills, settings, brain notes, contract).
+2. **Harvest #1** — `setup.ps1 -Harvest` (dry run) → review the list → `-Harvest -Force`.
+   This is what makes the work **visible to git**: `~/.claude` is not a repo, so until you
+   harvest, `git status` in the clone shows nothing.
+3. **Wrap-up** — `/s.wrap-up`. Its git orientation now works (step 2 populated the diff). It
+   writes the session note into `~/.claude/cc-toolkit-wiki-brain/syntheses/` — the **authoring**
+   copy, per the curate-locally-then-harvest rule.
+4. **Harvest #2** — syncs the session note + `index.md`/`log.md` up. One command, a few files.
+5. **Commit + push** from the repo clone. Session notes conventionally get their **own** commit
+   (`wiki:` / `brain:` prefix), separate from the feature commit — one note may cover several
+   versions.
+
+**Why two harvests (not redundancy):** every phase that *authors into* `~/.claude` ends with a
+harvest. The work is phase one; the session note is phase two. The harvest between them exists
+because wrap-up must **read** the work through `git diff`, and git only ever sees the repo. To
+collapse to one harvest you must break a constraint: either wrap-up enumerates from memory
+instead of the diff (the failure mode that loses session notes), or the note is authored into
+the repo copy and `~/.claude` — the copy `s.wiki` actually queries — goes stale until the next
+deploy down.
+
+**The staging trap:** harvest has **no per-file filter** — it sweeps every candidate in one pass.
+Unrelated local drift rides along into the working tree (a stray `effortLevel`, whatever `/model`
+last persisted to `settings.json`). **Stage by name at step 5; never `git add -A`.**
+
+**Split-root wrap-up:** the git repo (`cc-toolkit`) and the authoring copy (`~/.claude`) are
+different roots. Wrap-up reads git from the former and writes the note to the latter — resolve
+both independently; neither one root serves both jobs.
+
 ## Runbook — Clean exit (client hand-back)
 
 ```powershell
@@ -139,8 +215,13 @@ or runtime state. Contrast `cleanup.ps1 -Force`, which **is** destructive (remov
 
 ## Key invariants (don't violate)
 
-- **Curate in the repo clone, never the deployed `~/.claude/cc-toolkit-wiki-brain/`** — the deployed copy is a
-  target, overwritten on every deploy.
+- **Prefer curating in the repo clone.** Local editing of the deployed
+  `~/.claude/cc-toolkit-wiki-brain/` is supported via `-Harvest` — **harvest promptly**: an
+  unharvested local edit is destroyed by the next `-Force` deploy (a merge-copy, not a diff-aware
+  one), and the drift-check hook above is the only standing guard against that. *(Amended
+  2026-07-16 — this invariant originally read "never edit the deployed copy," written before
+  the `-Harvest` flow existed. It was over-strict, not wrong: the real risk was always losing
+  an edit to the next deploy, and `-Harvest` now gives that edit a way out.)*
 - **Secrets never enter the repo** — API key from a password manager; `.credentials.json`
   and `settings.local.json` stay local (the latter is where machine-specific hooks live and
   survives deploys untouched).
@@ -162,3 +243,6 @@ and a separate, human-gated teardown path kept well away from the everyday deplo
 ## Related
 - [[../wiki-schema]] — brain conventions, promote/query/lint flows
 - [[README]] — playbooks folder intent
+- [[../harness/harness-overview]] — where this playbook sits in the overall tooling map
+- [[../harness/memory-architecture]] — how this brain (deployed by the lifecycle above) fits
+  the broader memory/knowledge routing picture

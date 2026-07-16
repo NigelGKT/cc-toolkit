@@ -71,6 +71,20 @@ and client-specific context belongs in project-level CLAUDE.md, not here.
   disclaimer. It never restates these rules. `fde-toolkit` is the reference implementation.
 - When I ask "where are we?" read `STATUS.md` first, not the CLAUDE.md snapshot.
 
+## Wiki (scoped: this contract's own two homes ONLY)
+- **Scope gate — read this first.** This file is the *global* contract: it is injected into every
+  session regardless of CWD, **and** it physically sits at the root of two folders — the
+  `cc-toolkit` repo clone and its deploy target `~/.claude`. The pointer below applies **only**
+  when CWD is one of those two roots. In any other project, ignore it entirely and read that
+  project's own `CLAUDE.md` for its wiki. It says nothing about PTA, fde-toolkit, or anything else.
+- **When CWD is `cc-toolkit` or `~/.claude`:** the wiki brain is at `./cc-toolkit-wiki-brain/`.
+  (The relative path is identical from both roots, which is why one pointer covers them.)
+- **Why this section exists:** `cc-toolkit`'s `CLAUDE.md` *is* this global contract — so it's the
+  one project that can't carry an ordinary project-local `## Wiki` pointer. Without this, the
+  wiki skills probe `./wiki-schema.md`, miss the subfolder brain, and conclude no wiki exists —
+  which made `/s.wiki` try to **bootstrap a fresh vault over the repo root**. Fixed 2026-07-16
+  alongside a subfolder-glob fallback in the skills themselves.
+
 ## Edits
 - Surgical edits over rewrites — prefer targeted string replacements. Flag when a
   new file supersedes an old one.

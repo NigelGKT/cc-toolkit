@@ -2,6 +2,62 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.16.0] — 2026-07-16
+
+Fix a **live footgun**: `/s.wiki` invoked from the cc-toolkit repo root would fail to detect the
+existing `cc-toolkit-wiki-brain/` and run **Bootstrap**, scaffolding a fresh vault (`index.md`,
+`log.md`, folders) over the repo root. Both detection probes missed it — the brain is a
+subfolder, not at CWD root, and cc-toolkit's `CLAUDE.md` **is** the global operating contract,
+so it carried no project-local `## Wiki` pointer. The same blind spot made `s.wrap-up` silently
+skip its session note (caught in the act this session).
+
+### Added
+- **`## Wiki` section in the global `CLAUDE.md`** — scope-gated: it applies **only** when CWD is
+  one of the contract's own two homes (the `cc-toolkit` repo clone or its deploy target
+  `~/.claude`), where the relative path `./cc-toolkit-wiki-brain/` happens to be identical. The
+  scope gate is load-bearing — this file is injected into every session regardless of CWD, so an
+  ungated pointer would imply a wiki path that's false for every other project.
+
+### Changed
+- **`s.wiki` probe** — now falls through to a one-level glob for `*/wiki-schema.md` before
+  concluding a wiki is absent (one match wins; several → ask). Bootstrap is destructive-by-surprise
+  when the probe is wrong, so the fallback is the guard.
+- **`s.wrap-up` probe** — same subfolder-glob fallback, plus an explicit **split-root** rule: the
+  git repo and the wiki brain need not share a root (here git orientation runs against the clone
+  while the session note is written to the `~/.claude` authoring copy).
+- **`playbooks/cc-toolkit-deploy-lifecycle.md`** — new **session close-out runbook**: the canonical
+  work → harvest → wrap-up → harvest → commit order, why two harvests are load-bearing (wrap-up
+  must *read* the work through git, which only sees the repo; and it *writes* the note into
+  `~/.claude`, which must then be synced), and the `git add -A` staging trap.
+
+## [1.15.0] — 2026-07-16
+
+Give the global brain a **dual charter**: transferable patterns (existing) plus a new
+`harness/` zone for self-documentation of the Claude Code toolkit itself, so the meta-level
+process knowledge (memory routing, deploy/harvest mechanics, skills) has a proper home instead
+of squatting in the transferable-patterns space or staying purely tacit.
+
+### Added
+- **`cc-toolkit-wiki-brain/harness/`** — 4 notes: `harness-overview` (anchor meta-map, with
+  flowchart), `memory-architecture` (the two memory systems — harness auto-memory vs. the
+  three-tier project convention — and the routing rule between them), `skills-catalog`
+  (`s.wiki`/`s.wrap-up`/`s.goal-run`/`obsidian@obsidian-skills` triggers + flows), `README`
+  (zone charter).
+- **`.obsidian/graph.json`** — colour group for `path:harness/` (🔵), inserted above the
+  source/raw catch-all per the schema's own ordering rule.
+
+### Changed
+- **`wiki-schema.md`** — declares the dual charter; registers the `harness` page type; adds
+  two house-style carve-outs (harness pages may name toolkit internals; `## Transfer note` is
+  optional, not mandatory, for self-doc). **Amends the curation invariant**: "never edit the
+  deployed copy" (written before `-Harvest` existed) → "prefer the repo clone; local editing is
+  supported via `-Harvest` — harvest promptly, since an unharvested edit is destroyed by the
+  next `-Force` deploy and the drift-check hook is the only guard."
+- **`playbooks/cc-toolkit-deploy-lifecycle.md`** — fills gaps the playbook predates: a general
+  file-harvest runbook (`-Harvest` for any toolkit item, not just plugins), a drift-check-hook
+  runbook (throttling, silent-by-design, the settings.json semantic-compare rationale), and the
+  matching invariant amendment. Cross-linked to the new `harness/` notes.
+
 ## [1.14.0] — 2026-07-15
 
 Introduce the **three-tier project memory architecture** (`CLAUDE.md` → `STATUS.md` → wiki brain),
