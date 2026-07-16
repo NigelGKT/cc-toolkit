@@ -18,7 +18,7 @@ When triggered, do this in order before responding to the user's actual request:
    d. Only if a, b, and c all miss, set `WIKI_ROOT = .` and treat the wiki as genuinely absent.
    e. Check whether `<WIKI_ROOT>/wiki-schema.md` exists.
 
-   **Bootstrap is destructive-by-surprise if this probe is wrong** — it scaffolds `index.md`, `log.md`, and folders into `WIKI_ROOT`. Scaffolding over a populated repo root because a subfolder brain went undetected is the failure mode step (c) exists to prevent.
+   **Bootstrap is destructive-by-surprise if this probe is wrong** — it scaffolds `index.md`, `log.md`, and folders into `WIKI_ROOT`. Scaffolding over a populated repo root because a subfolder brain went undetected is the failure mode step (c) exists to prevent. Step (c) lowers the odds of a wrong verdict; the Bootstrap **Step 0 safety gate** is the independent backstop that makes a wrong verdict *harmless* — it refuses to scaffold into a populated target no matter what this probe concluded.
 2. **If absent** → run the **Bootstrap workflow** (below).
 3. **If present** → read `<WIKI_ROOT>/wiki-schema.md` to load domain-specific conventions (folder overrides, custom page types, house style). Then route the user's request:
    - "ingest / add this / I read / process this source" → **Ingest workflow**
@@ -36,6 +36,27 @@ Never invent or rename files. If the user references something that doesn't exis
 
 Run once per wiki, when `<WIKI_ROOT>/wiki-schema.md` is absent.
 
+**Step 0 — Safety gate (MANDATORY — nothing gets scaffolded until this is clear).**
+Bootstrap writes `index.md`, `log.md`, folders, and (Step 2b) edits to `CLAUDE.md`/`STATUS.md`.
+If the probe was wrong — a subfolder brain missed, a `## Wiki` pointer never backfilled — those
+writes land on top of unrelated work. This gate does **not** trust the probe's verdict; it
+inspects the final `WIKI_ROOT` on disk and fails *safe*. Evaluate it now against `WIKI_ROOT` as
+resolved so far, and **again at Step 2** against the final path if Step 1's interview changed it.
+
+- **Safe → scaffold normally:** `WIKI_ROOT` does not exist yet, or exists and is empty.
+- **Unsafe → STOP, write nothing:** `WIKI_ROOT` exists and is non-empty — in particular if it
+  holds a `.git/` (a repo root), a `CLAUDE.md` (a project root), or any file this Bootstrap did
+  not create.
+
+On **Unsafe**, scaffold nothing. Show the user what `WIKI_ROOT` already contains, then ask once
+(single AskUserQuestion):
+- **Scaffold into a subfolder instead** (recommended) — offer `./<Name> Wiki Brain/`;
+- **Scaffold here anyway** — explicit override, proceed into the populated folder;
+- **Abort** — create nothing.
+
+Proceed past this gate only on the user's explicit choice. A guard that refuses to write into a
+populated target survives an incorrect probe; detection alone cannot.
+
 **Step 1 — Interview** (single AskUserQuestion call, 2–4 questions max):
 - *What is this wiki for?* (research topic, project domain, book companion, personal journal, etc.)
 - *What kind of sources will dominate?* (papers, articles, transcripts, notes, code, mixed)
@@ -44,6 +65,10 @@ Run once per wiki, when `<WIKI_ROOT>/wiki-schema.md` is absent.
 - *Where should the wiki folder live?* — ask this only if `CLAUDE.md` exists in CWD and does NOT already contain a `## Wiki` section. Offer a sensible default like `./<Project Name> Wiki Brain/` derived from the CWD folder name. Omit this question if CLAUDE.md is absent (scaffold into CWD as before) or if a path is already set.
 
 **Step 2 — Scaffold** into `WIKI_ROOT` (the path chosen in Step 1, or CWD if no CLAUDE.md):
+
+**Precondition — the Step 0 safety gate must be clear for the *final* `WIKI_ROOT`.** If Step 1's
+interview selected or changed the path, re-run the gate against it now. Never write a file into a
+non-empty target the gate has not cleared.
 
 ```
 <WIKI_ROOT>/

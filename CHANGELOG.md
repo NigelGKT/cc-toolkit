@@ -2,6 +2,34 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+## [1.18.0] — 2026-07-17
+
+Ship the **Bootstrap self-guard** for `/s.wiki` — the highest-leverage unshipped response to the
+2026-07-16 self-description-drift incident (open question 2). Detection was hardened in v1.16.0
+(subfolder-glob probe + scope-gated pointer), but that only lowers the odds of a *wrong verdict*;
+Bootstrap still trusted the verdict and would scaffold `index.md`, `log.md`, and folders into
+whatever `WIKI_ROOT` resolved to. This adds an **independent** guard that inspects the target on
+disk and refuses to write into a populated one — so a wrong probe degrades from "silently clobbered
+a repo" to "asked a question."
+
+### Changed
+- **`s.wiki` Bootstrap — new mandatory Step 0 safety gate.** Before any scaffold, evaluate the
+  *final* `WIKI_ROOT`: **safe** if it does not exist or is empty; **unsafe** (STOP, write nothing)
+  if it is non-empty — especially if it holds a `.git/` (repo root), a `CLAUDE.md` (project root),
+  or any file Bootstrap did not create. On unsafe, ask once (scaffold-a-subfolder / override /
+  abort) and proceed only on explicit choice. Re-checked at Step 2 against the final path in case
+  the interview changed it.
+- **`s.wiki` probe warning** now names the Step 0 gate as the independent backstop — step (c)
+  lowers the chance of a wrong verdict; the gate makes a wrong verdict harmless.
+
+### Note
+- Guard verified by **simulation against scratch fixtures** (nonexistent / empty / populated-repo /
+  populated-plain) — the incident's own footgun scenario (`.git` + `CLAUDE.md`) now halts and asks.
+  A true end-to-end `/s.wiki` run needs a session restart to reload the skill; deferred to the operator.
+- **Scope: `s.wiki` only.** `s.wrap-up`'s mirror failure (a wrong probe *silently skips* the session
+  note rather than scaffolding) is a different shape and deliberately left for later — its fix is
+  visibility (surface the skip), not a write-guard.
+
 ## [1.17.0] — 2026-07-16
 
 Add an **`incidents/` zone** to the global brain and capture the session's first incident.
