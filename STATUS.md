@@ -3,18 +3,25 @@
 > **Read this first when picking up cc-toolkit.** Single source of truth for the repo's
 > current version, what's deployed, and what's pending harvest/commit. This project's
 > `CLAUDE.md` **is** the global operating contract (deployed to `~/.claude`), so it holds no
-> project-specific pointer — this STATUS.md is the project working tier. Last updated: 2026-07-16.
+> project-specific pointer — this STATUS.md is the project working tier. Last updated: 2026-07-17.
 >
 > *(Scope split: this file = cc-toolkit's repo/config/deploy state. The `fde-toolkit` STATUS.md
 > holds the meta-roadmap / phase direction.)*
 
 ## Version
 
-- **Last released: v1.17.0** (2026-07-16, `ec8fb35` + closeout `chore`) — **committed and pushed
-  to `origin/main`.** Working tree clean apart from `settings.json` (see open threads). The
-  `incidents/` zone + first incident capture (self-description drift).
-- Shipped this session, in order — `v1.15.0` (`2db0786`), `v1.16.0` (`bd9d242`), session note
-  (`6fdc0d3`), STATUS/runbook `chore` (`b113d8b`), `v1.17.0` incident (`ec8fb35`):
+- **Last released: v1.18.0** (2026-07-17, `af52be6` feat + `834d831` wiki, + this STATUS `chore`)
+  — **committed and pushed to `origin/main`, and deployed down to `~/.claude` (both brains
+  match).** Working tree clean apart from `settings.json` (see open threads). The `s.wiki`
+  **Bootstrap Step 0 safety gate**: refuses to scaffold into a populated target (repo root /
+  project root / any pre-existing files) without explicit confirmation — ships incident
+  **question 2** for `s.wiki`. Verified by scratch-fixture simulation; a true end-to-end `/s.wiki`
+  run is deferred (needs a skill reload).
+- **Prior release: v1.17.0** (2026-07-16, `ec8fb35` + closeout `chore`) — the `incidents/` zone +
+  first incident capture (self-description drift).
+- Shipped in the prior session (2026-07-16), in order — `v1.15.0` (`2db0786`), `v1.16.0`
+  (`bd9d242`), session note (`6fdc0d3`), STATUS/runbook `chore` (`b113d8b`), `v1.17.0` incident
+  (`ec8fb35`):
   - **v1.15.0** (`2db0786`) — a `harness/` zone in `cc-toolkit-wiki-brain/`: self-documentation
     of the toolkit itself (memory routing, deploy/harvest lifecycle, skills catalog), distinct
     from the brain's transferable-patterns charter. `wiki-schema.md` amended to a formal dual
@@ -40,19 +47,21 @@
 
 ## Deploy state
 
-- `setup.ps1 -Force` was last run 2026-07-15 → `~/.claude` carries the three-tier foundation
-  (backup at `~/.claude.backup-20260715-213222`). Plugins re-hydrated from `plugins.json`.
+- `setup.ps1 -Force` was last run 2026-07-17 (this session's v1.18.0 deploy) → `~/.claude` carries
+  the current toolkit incl. the `s.wiki` Bootstrap self-guard and the v1.18.0 brain docs (backup at
+  `~/.claude.backup-20260717-011021`). Plugins re-hydrated from `plugins.json`.
 - Deploy manifest (`$ToolkitItems`): `CLAUDE.md`, `settings.json`, `skills/`,
   `cc-toolkit-wiki-brain/`, `statusline.js`, `drift-check.ps1`. **STATUS.md is not deployed** —
   it stays repo-local by design.
 
 ## Pending / open threads
 
-- **⭐ NEXT — revisit the open incident.** [[cc-toolkit-wiki-brain/incidents/2026-07-16-self-description-drift]]
-  (`status: open`). Root causes known, design response deliberately undecided. Seven design
-  questions parked; the highest-leverage one is a **Bootstrap self-guard** (refuse to scaffold
-  into a populated folder / repo root) — the only fix that survives an incorrect probe. This is
-  the re-anchor point for the next session.
+- **⭐ NEXT — pick the next open thread** (per the plan to work them one by one). Incident
+  [[cc-toolkit-wiki-brain/incidents/2026-07-16-self-description-drift]] stays `status: open`:
+  **question 2 shipped for `s.wiki` in v1.18.0** (Bootstrap Step 0 safety gate), but its mirror
+  for `s.wrap-up` — a wrong probe *silently skips* the session note, so the fix there is a
+  **visibility** surface, not a write-guard — and design questions 1, 3, 4, 5, 6, 7 remain. The
+  `s.wrap-up` visibility mirror is the natural direct follow-on; the other standing threads are below.
 - **Do not stage `settings.json`.** It shows modified from an unrelated pre-existing drift
   (local `effortLevel: xhigh` vs repo `high`) swept up by the harvest's all-or-nothing file
   scan — this thread is still open, decide it separately. Note `/model` writes here too, so it
