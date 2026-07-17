@@ -20,6 +20,14 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - Session: [[syntheses/2026-07-15-session-harvest-systematization]]
 - Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
 
+## [2026-07-17 18:00] ingest | Session note — single-pass release flow, s.ship-cc-tlkit (v1.19.0)
+- Session: [[syntheses/2026-07-17-session-single-pass-release-flow]]
+- New skill `s.ship-cc-tlkit`: conducts the whole round-trip in one pass (harvest → docs authored in the repo → one gate → commit + push → deploy down); replaces the six-step prose close-out runbook
+- Root-caused the STATUS drift: it stored commit/SHA state git already owns, so it was false at rest **by construction**. Removed the data (STATUS → state + intent only) — step 6 no longer exists
+- `CHANGELOG.md` frozen to a signpost (a third copy of a record git + `syntheses/` already hold); `CLAUDE.md` gained the *retrieve, don't duplicate* rule (git = history, wiki = synthesis, web = cached answer + source URL)
+- Anchor: `setup.ps1` persists `CC_TOOLKIT_HOME` on deploy; `drift-check.ps1` + the skill guard now read the **persisted scope**, not the process env — which is why the hook fired in some sessions and silently no-op'd in others
+- Updated: [[incidents/2026-07-16-self-description-drift]] — Q5 answered at root (remove the false-able data rather than reorder the ritual), Q7 partial; [[playbooks/cc-toolkit-deploy-lifecycle]] + [[harness/skills-catalog]] rewritten to the single-pass flow
+
 ## [2026-07-17 00:00] ingest | Session note — s.wiki Bootstrap self-guard (v1.18.0)
 - Session: [[syntheses/2026-07-17-session-bootstrap-self-guard]]
 - Shipped incident Q2 for `s.wiki`: Bootstrap Step 0 safety gate refuses to scaffold into a non-empty `WIKI_ROOT` (repo root / project root / any pre-existing files) without explicit confirmation

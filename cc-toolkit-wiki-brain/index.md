@@ -20,13 +20,13 @@ Self-documentation of the Claude Code toolkit itself — see [[harness/README|ha
 
 - [[harness/harness-overview]] — anchor note: meta-map of the whole `~/.claude` tooling (with flowchart)
 - [[harness/memory-architecture]] — the two memory systems (harness auto-memory vs. the three-tier project convention) and the routing rule between them
-- [[harness/skills-catalog]] — `s.wiki`, `s.wrap-up`, `s.goal-run`, and the `obsidian@obsidian-skills` plugin bundle: triggers + flows
+- [[harness/skills-catalog]] — `s.wiki`, `s.wrap-up`, `s.goal-run`, `s.ship-cc-tlkit`, and the `obsidian@obsidian-skills` plugin bundle: triggers + flows
 
 ## Incidents
 
 How the toolkit has failed — open questions with evidence attached, **not** settled guidance. See [[incidents/README|incidents/]] for the zone's charter and lifecycle.
 
-- 🔴 **open** — [[incidents/2026-07-16-self-description-drift]] — three self-description failures in one session (stale invariant / blind wiki probes / stale STATUS.md); nothing in the system could detect any of them. Root causes known; question 2 (Bootstrap self-guard) shipped for `s.wiki` in v1.18.0, the rest of the design response still open.
+- 🔴 **open** — [[incidents/2026-07-16-self-description-drift]] — three self-description failures in one session (stale invariant / blind wiki probes / stale STATUS.md); nothing in the system could detect any of them. Root causes known; question 2 (Bootstrap self-guard) shipped for `s.wiki` in v1.18.0; question 5 answered at root in v1.19.0 (STATUS stopped storing what git owns, so it can no longer be false at rest); Layer 2, Q3 and Q7's breadth still open.
 
 ## Syntheses
 
@@ -34,3 +34,4 @@ How the toolkit has failed — open questions with evidence attached, **not** se
 - [[syntheses/2026-07-15-session-harvest-systematization]] — file harvest (-Harvest) + direction-aware audit + drift-check hook + settings.json semantic compare (v1.12.0–v1.13.0)
 - [[syntheses/2026-07-16-session-harness-zone-and-wiki-detection]] — dual charter + `harness/` zone, stale invariant amended, `/s.wiki` bootstrap footgun fixed (v1.15.0–v1.16.0)
 - [[syntheses/2026-07-17-session-bootstrap-self-guard]] — `s.wiki` Bootstrap Step 0 safety gate: refuse to scaffold into a populated target (incident Q2, v1.18.0)
+- [[syntheses/2026-07-17-session-single-pass-release-flow]] — `s.ship-cc-tlkit` single-pass release conductor; STATUS ledger removed + CHANGELOG frozen (retrieve-don't-duplicate); incident Q5 answered at root (v1.19.0)

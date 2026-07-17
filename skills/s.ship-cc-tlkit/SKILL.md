@@ -26,10 +26,18 @@ safe rehearsal boundary (abort = nothing committed, pushed, or deployed).
 
 Resolve the repo and confirm this is the toolkit loop **before touching anything**:
 
-1. `$repo = $env:CC_TOOLKIT_HOME`. If empty/unset → **STOP**. Explain: the anchor isn't set on this
-   machine, so the repo can't be located without hardcoding a path. Tell the user to run
-   `.\deployment\windows\setup.ps1 -Force` from their cc-toolkit clone once (it persists
-   `CC_TOOLKIT_HOME` in User env), then start a fresh session. Write nothing.
+1. **Resolve the anchor — read the persisted scope, not just the process env.** A session inherits
+   its environment at launch, so `$env:CC_TOOLKIT_HOME` is routinely **empty even when the variable
+   IS set on the machine**. (This is exactly what makes the drift-check hook fire in some sessions
+   and silently no-op in others — do not repeat that bug here.) Resolve in this order:
+   ```powershell
+   $repo = $env:CC_TOOLKIT_HOME
+   if (-not $repo) { $repo = [Environment]::GetEnvironmentVariable('CC_TOOLKIT_HOME', 'User') }
+   if (-not $repo) { $repo = [Environment]::GetEnvironmentVariable('CC_TOOLKIT_HOME', 'Machine') }
+   ```
+   If still empty → **STOP**. Explain: the anchor isn't set on this machine, so the repo can't be
+   located without hardcoding a path. Tell the user to run `.\deployment\windows\setup.ps1 -Force`
+   from their cc-toolkit clone once — it persists `CC_TOOLKIT_HOME` at User scope. Write nothing.
 2. Confirm `$repo` looks like a real cc-toolkit clone: it exists **and** contains
    `deployment/windows/setup.ps1`, `CLAUDE.md`, and `cc-toolkit-wiki-brain/`. If any is missing →
    **STOP** and explain what didn't match. Write nothing.
