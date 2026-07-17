@@ -2,7 +2,7 @@
 type: playbook
 tags: [deploy, lifecycle, runbook, cc-toolkit, meta]
 origin: GKT cc-toolkit (toolkit deploy + cleanup lifecycle, 2026)
-updated: 2026-07-16
+updated: 2026-07-17
 status: stable
 ---
 
@@ -30,16 +30,18 @@ flowchart TD
         G --> H(["canary 'Mr Nigel --' + skills + brain + plugins loaded"])
     end
 
-    subgraph WORK["2 - Work & compound"]
-        H --> W["work the engagement"]
-        W --> P["s.wrap-up Part C flags a transferable concept/lesson"]
-        P --> Q["promote into cc-toolkit-wiki-brain: scrub, set origin:, re-link"]
-        Q --> R["commit + push (repo = source of truth)"]
+    subgraph WORK["2 - Work & ship (single pass: /s.ship-cc-tlkit)"]
+        H --> W["work in ~/.claude (skills, settings, brain, contract)"]
+        W --> SH["/s.ship-cc-tlkit"]
+        SH --> H1["harvest UP (setup -Harvest -Force)"]
+        H1 --> DOC["author docs in the repo: session note + STATUS (state+intent, no SHAs)"]
+        DOC --> GATE{{"ONE gate: stage-by-name + commit msg + push/deploy intent"}}
+        GATE --> CP["commit + push (origin = source of truth)"]
+        CP --> DN["deploy DOWN (setup -Force): brain + plugins ride to every machine"]
+        DN -.->|next session, any machine| H
         W --> PL["install a plugin locally (claude plugin install)"]
-        PL --> PH["setup -HarvestPlugins  -> regenerates plugins.json"]
-        PH --> R
-        R --> S["redeploy: setup -Force  (brain + plugins ride to every machine)"]
-        S -.->|next session, any machine| H
+        PL --> PH["setup -HarvestPlugins -> plugins.json (before shipping)"]
+        PH --> SH
     end
 
     subgraph EXIT["3 - Clean exit (client hand-back)"]
@@ -160,49 +162,45 @@ The audit (`setup.ps1` on an existing config) lists installed-but-unrecorded plu
 **HARVEST CANDIDATES (plugins)** and manifest-but-not-installed ones as **WOULD BE
 INSTALLED** — the same intent comparison, never a byte diff.
 
-## Runbook — Session close-out (work → harvest → wrap-up → harvest → commit)
+## Runbook — Session close-out (single pass: `/s.ship-cc-tlkit`)
 
-The canonical order for a cc-toolkit session. The sequence is **not** arbitrary — it is a
-read-before / write-after sandwich around `s.wrap-up`:
+The canonical close-out for a cc-toolkit session is **one skill**: `/s.ship-cc-tlkit`. It conducts
+the whole round-trip so the sequence is *executed*, not *remembered* — which is precisely why the
+old multi-step prose runbook drifted three times (see
+[[../incidents/2026-07-16-self-description-drift]], Failure 3). What the skill does, in order:
 
-1. **Work** in `~/.claude` (skills, settings, brain notes, contract).
-2. **Harvest #1** — `setup.ps1 -Harvest` (dry run) → review the list → `-Harvest -Force`.
-   This is what makes the work **visible to git**: `~/.claude` is not a repo, so until you
-   harvest, `git status` in the clone shows nothing.
-3. **Wrap-up** — `/s.wrap-up`. Its git orientation now works (step 2 populated the diff). It
-   writes the session note into `~/.claude/cc-toolkit-wiki-brain/syntheses/` — the **authoring**
-   copy, per the curate-locally-then-harvest rule.
-4. **Harvest #2** — syncs the session note + `index.md`/`log.md` up. One command, a few files.
-5. **Commit + push** from the repo clone. Session notes conventionally get their **own** commit
-   (`wiki:` / `brain:` prefix), separate from the feature commit — one note may cover several
-   versions.
-6. **Refresh `STATUS.md` — after the push, not before.** Record the released version + commit
-   SHAs and drop the "pending commit" line. Small `chore:` commit. **This step is not optional
-   bookkeeping — it is the only thing that makes STATUS.md true.**
+1. **Guard** — resolves the repo via `CC_TOOLKIT_HOME` and refuses to run outside the toolkit loop.
+2. **Harvest UP** — `setup.ps1 -Harvest` (dry-run) → `-Harvest -Force`. Makes the session's
+   `~/.claude` edits **visible to git**: `~/.claude` is not a repo, so until you harvest, `git
+   status` in the clone shows nothing.
+3. **Author docs in the repo** — follows `s.wrap-up`'s orientation + wiki-note steps, but with
+   CWD = the clone, so the session note and `STATUS.md` are written **directly into the repo**.
+   This is what collapses the old two-harvest dance to one: nothing is authored into `~/.claude`
+   that would need a second harvest, and (git-root = wiki-root here) there is no split-root divert.
+4. **One consolidated gate** — shows the files to be staged **by name**, the commit message, and an
+   explicit "will push + deploy" statement. Everything before it is reversible working-tree state,
+   so aborting here ships nothing.
+5. **Commit + push** — named files only, then push to origin. On a failed push it stops, rather than
+   deploying a state that isn't on the remote.
+6. **Deploy DOWN** — `setup.ps1 -Force`. The fresh commit (incl. the session note) rides back into
+   `~/.claude`, so the copy `s.wiki` queries is never left stale.
 
-**Why step 6 exists (the stale-STATUS trap):** wrap-up writes `STATUS.md` at step 3, but the
-commit doesn't exist until step 5. So at the moment of push, STATUS.md *always* claims the work
-is "not yet committed" — describing a world one step behind reality. Since STATUS.md is the
-designated re-anchor point for the next session, a stale one actively misleads: it sends you to
-redo work that already shipped. This has bitten twice — the v1.14.0 entry claimed uncommitted
-work that was already pushed, and the same drift recurred on 2026-07-16. STATUS.md is repo-local
-(not on the deploy manifest), so edit it in the clone directly; no harvest needed.
+**No post-push STATUS step — the drift class is gone by construction.** The old "step 6" existed
+only because `STATUS.md` stored the commit SHA / "committed" state, *data git already owns*, which
+cannot be true until **after** the commit that contains it — so the ritual's own output was false at
+rest at the moment of push, and the fix (refresh after push) was unenforced prose that failed three
+times. `STATUS.md` now stores **state + intent only** (history → `git log`), so there is nothing to
+reconcile after the push and no step to forget.
 
-**Why two harvests (not redundancy):** every phase that *authors into* `~/.claude` ends with a
-harvest. The work is phase one; the session note is phase two. The harvest between them exists
-because wrap-up must **read** the work through `git diff`, and git only ever sees the repo. To
-collapse to one harvest you must break a constraint: either wrap-up enumerates from memory
-instead of the diff (the failure mode that loses session notes), or the note is authored into
-the repo copy and `~/.claude` — the copy `s.wiki` actually queries — goes stale until the next
-deploy down.
+**The staging trap — now handled, not just documented.** Harvest has **no per-file filter**; it
+sweeps every candidate in one pass, so unrelated local drift (a stray `effortLevel`, whatever
+`/model` last wrote to `settings.json`) lands in the working tree. The skill **stages by name** at
+step 5, so that noise never reaches a commit — it is reported as an open thread instead. If you ever
+run the steps by hand: **never `git add -A`.**
 
-**The staging trap:** harvest has **no per-file filter** — it sweeps every candidate in one pass.
-Unrelated local drift rides along into the working tree (a stray `effortLevel`, whatever `/model`
-last persisted to `settings.json`). **Stage by name at step 5; never `git add -A`.**
-
-**Split-root wrap-up:** the git repo (`cc-toolkit`) and the authoring copy (`~/.claude`) are
-different roots. Wrap-up reads git from the former and writes the note to the latter — resolve
-both independently; neither one root serves both jobs.
+**Manual fallback.** If you must run it by hand (no skill reload, debugging), the order is the same
+six steps; the two non-obvious rules are *author the docs in the clone* (not `~/.claude`) and *stage
+by name*.
 
 ## Runbook — Clean exit (client hand-back)
 

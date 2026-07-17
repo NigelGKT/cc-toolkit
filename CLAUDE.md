@@ -69,6 +69,13 @@ and client-specific context belongs in project-level CLAUDE.md, not here.
 - **DRY:** this contract is stated **once, here** (global). A project `CLAUDE.md` carries only
   thin pointers + a "current state below is a snapshot — read `STATUS.md` for live status"
   disclaimer. It never restates these rules. `fde-toolkit` is the reference implementation.
+- **Retrieve, don't duplicate (SSOT across systems):** never copy into a markdown file what an
+  authoritative source already holds and can return on demand. **git** owns history — SHAs,
+  commit/push state, what-shipped-when (`git log`/`git status`); **the wiki brain** owns synthesis
+  and decisions; **the web** is retrievable but unreliable, so cache the *distilled answer + source
+  URL*, never a bare pointer. `STATUS.md`/`CHANGELOG` carry state + intent + synthesis, **never the
+  git ledger** — storing a fact a commit changes is what let `STATUS.md` drift three times (an
+  artifact must not store what an authoritative source owns; it goes stale at rest and misleads).
 - When I ask "where are we?" read `STATUS.md` first, not the CLAUDE.md snapshot.
 
 ## Wiki (scoped: this contract's own two homes ONLY)

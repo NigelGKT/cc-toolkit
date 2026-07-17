@@ -165,12 +165,24 @@ For the revisit. Deliberately **not** answered here.
 5. **Should rituals be ordered so their artifacts are true at rest?** Failure 3's fix (close-out
    step 6) is a patch on one ritual. Is there a general principle — *"no ritual may leave its own
    output false"* — and what else violates it?
+   **Answered in v1.19.0 — stronger than reordering.** The durable fix isn't to *order* the ritual
+   so its output becomes true after the fact (step 6 tried that and was forgotten); it's to stop the
+   artifact from storing a fact that can be false. `STATUS.md` no longer carries commit/SHA state
+   (history → `git log`), so its output **cannot** be false at rest, and the ritual is now an
+   enforced skill (`s.ship-cc-tlkit`) rather than remembered prose. General principle adopted: *an
+   artifact must not store what an authoritative source already owns* — the retrieve-don't-duplicate
+   rule now in `CLAUDE.md`.
 6. **When a mechanism is added, what backfills existing instances?** Failure 2's root cause. The
    `## Wiki` pointer shipped for new projects; nothing swept the old one.
 7. **How is a fix confirmed, given skills are prose, not code?** The v1.16.0 probe fix was
    verified *by simulating the probe steps in a shell* — not by running `/s.wiki` end-to-end from
    the cc-toolkit root, which remains **untested**. Prose guardrails have no test suite; a
    careless read still skips the new step (c).
+   **Partially addressed in v1.19.0.** `s.ship-cc-tlkit` collapses the six remembered close-out
+   steps into one invocation with a single gate, removing the multi-step-memory failure behind
+   Failure 3's third recurrence — the sequence is executed, not remembered. It is still a `SKILL.md`
+   (prose), so Q7's core concern stands; the plan's supervised **first real ship** (the skill shipping
+   its own session) is the end-to-end confirmation.
 
 ## Responses shipped so far (partial — do not mistake for resolution)
 
@@ -191,8 +203,18 @@ For the revisit. Deliberately **not** answered here.
   from data-loss to a question. Verified by scratch-fixture simulation; a true end-to-end run is
   deferred (needs a skill reload — question 7). `s.wrap-up` intentionally untouched: its mirror
   failure is silent omission, which needs a visibility fix, not a write-guard.
-- **Still unaddressed:** Layer 2, question 3, and the enforcement gap the third recurrence exposed;
-  question 2 remains open for `s.wrap-up`. That is why this stays `open`.
+- **v1.19.0** — **root-cause response to Failure 3 (and question 5).** The drift was never "step 6
+  was forgotten"; it was that `STATUS.md` stored commit/SHA state git already owns — false at rest
+  until the commit that contains it exists. v1.19.0 **removes that data** (STATUS → state + intent
+  only; history → `git log`) so the artifact *cannot* be false at rest, and **replaces the prose
+  close-out runbook with an enforced conductor skill**, `s.ship-cc-tlkit` (one harvest, one gate, no
+  post-push step). CHANGELOG thinned to a signpost (it was a third copy of the same record); the
+  retrieve-don't-duplicate rule encoded in `CLAUDE.md`. Partially addresses question 7 (executed,
+  not remembered — but still prose); end-to-end confirmation is the supervised first ship.
+- **Still unaddressed:** Layer 2, question 3, and question 2 for `s.wrap-up` (its silent-omission
+  mirror). The enforcement gap the third recurrence exposed is **closed for the close-out ritual**
+  by v1.19.0, but Q7's broader "prose has no test suite" concern stands. That is why this stays
+  `open`.
 
 ## Related
 - [[../syntheses/2026-07-16-session-harness-zone-and-wiki-detection]] — the session record

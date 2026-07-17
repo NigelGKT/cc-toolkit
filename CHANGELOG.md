@@ -2,6 +2,13 @@
 
 All notable changes to the GKT cc-toolkit. Versioning is `major.minor`.
 
+> **Archived at v1.18.0 — no longer updated.** Detailed history now lives in `git log` (commit
+> messages are release-quality) and per-session synthesis in `cc-toolkit-wiki-brain/syntheses/`.
+> Maintaining this file alongside git + the wiki brain was a third copy of the same record — the
+> redundancy that let `STATUS.md` drift three times. The `/s.ship-cc-tlkit` release flow writes the
+> wiki session note instead of a changelog entry. The entries below are retained as a frozen
+> archive; to read what changed since v1.18.0, run `git log`.
+
 ## [1.18.0] — 2026-07-17
 
 Ship the **Bootstrap self-guard** for `/s.wiki` — the highest-leverage unshipped response to the

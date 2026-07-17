@@ -1,15 +1,15 @@
 ---
 type: harness
-tags: [skills, s.wiki, s.wrap-up, s.goal-run, obsidian, catalog]
+tags: [skills, s.wiki, s.wrap-up, s.goal-run, s.ship-cc-tlkit, obsidian, catalog]
 origin: GKT cc-toolkit (harness process mapping, 2026)
-updated: 2026-07-16
+updated: 2026-07-17
 status: stable
 ---
 
 # Skills Catalog
 
 What each global skill (`~/.claude/skills/`, deployed by `cc-toolkit`) does, what triggers it,
-and its internal flow. Three user-authored skills plus one installed plugin bundle.
+and its internal flow. Four user-authored skills plus one installed plugin bundle.
 
 ## `s.wiki` — the wiki engine
 
@@ -76,6 +76,36 @@ never merge, never push, never force, never delete files — always separate man
    `-A`) → checkpoint. Self-paced via `/loop` + `ScheduleWakeup`.
 5. **Close-out:** full verification pass across all changed files together, closing summary,
    hands off to `s.wrap-up` for session bookkeeping — does not duplicate it.
+
+## `s.ship-cc-tlkit` — the cc-toolkit release conductor
+
+**Triggers:** "ship the toolkit", "ship cc-toolkit", "release the toolkit", "close out cc-toolkit",
+explicit `/s.ship-cc-tlkit`. **cc-toolkit-specific** — deployed globally but guarded to the toolkit
+loop; it refuses to run anywhere else (the one project with a deploy-down step).
+
+The single-pass close-out for a cc-toolkit session: it *conducts* the round-trip that used to be a
+prose runbook an agent had to remember — the source of the self-description-drift
+([[../incidents/2026-07-16-self-description-drift]], Failure 3). **Exactly one approval gate** (the
+consolidated round-trip summary); everything before it is reversible working-tree state, so aborting
+there ships nothing.
+
+1. **Guard (silent):** resolve the repo via `$env:CC_TOOLKIT_HOME`; refuse-and-explain if it is
+   unset or the target isn't a cc-toolkit clone. All ops run against that repo explicitly, whatever
+   the session CWD.
+2. **Harvest UP:** `setup.ps1 -Harvest` dry-run → `-Harvest -Force` — the session's `~/.claude` edits
+   become visible to git in the clone's working tree.
+3. **Author docs in the repo:** reuses `s.wrap-up`'s orientation + wiki-note steps (by reference, not
+   duplicated), bound to CWD = the clone, so the session note + `STATUS.md` land directly in the
+   repo. Kills the old second harvest; `STATUS.md` is written **state + intent only, never SHAs**.
+4. **The one gate:** the files to stage **by name**, the commit message, and an explicit push +
+   deploy statement — replaces `s.wrap-up`'s own gate.
+5. **On confirm:** stage named files (never `-A`) → commit → push; stop on a failed push. Report
+   harvested-but-unstaged noise (`settings.json`) as an open thread.
+6. **Deploy DOWN:** `setup.ps1 -Force` — the fresh commit (incl. the session note) rides back to
+   `~/.claude`, so the copy `s.wiki` queries is never stale.
+
+Hard boundaries: never `git add -A`, force-push, merge, delete files, touch secrets, or run outside
+the toolkit loop.
 
 ## `obsidian@obsidian-skills` — installed plugin bundle
 

@@ -486,6 +486,18 @@ foreach ($secret in $NeverTouch) {
     }
 }
 
+# -- Persist the repo anchor -----------------------------------------
+# CC_TOOLKIT_HOME lets drift-check.ps1 (the SessionStart hook) and the s.ship-cc-tlkit skill
+# locate this clone on every future session with no hardcoded path. Set at User scope so it
+# survives shell restarts; also set in-process so the current session sees it immediately.
+# No-op when already correct. Deploy-path only - never touched by the harvest scan.
+$anchor = [Environment]::GetEnvironmentVariable('CC_TOOLKIT_HOME', 'User')
+if ($anchor -ne $RepoRoot) {
+    [Environment]::SetEnvironmentVariable('CC_TOOLKIT_HOME', $RepoRoot, 'User')
+    $env:CC_TOOLKIT_HOME = $RepoRoot
+    Write-Host "  set CC_TOOLKIT_HOME -> $RepoRoot (User env)" -ForegroundColor Green
+}
+
 # -- Hydrate plugins from the declarative manifest (marketplace add + install) --
 # Re-creates the plugins/ folder from intent; never version-controlled. Idempotent:
 # re-adding a marketplace or re-installing a plugin is a no-op. Tolerant of offline /
