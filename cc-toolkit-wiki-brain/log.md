@@ -20,6 +20,15 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - Session: [[syntheses/2026-07-15-session-harvest-systematization]]
 - Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
 
+## [2026-07-18 16:53] ingest | Session note — settings.json drift root-fix + harvest-reads-disk decision (v1.20.0)
+- Session: [[syntheses/2026-07-18-session-settings-drift-runtime-keys]]
+- `setup.ps1`: `model` + `effortLevel` added to `$SettingsRuntimeKeys` — the only two keys that ever
+  drift are the two `/model`/effort-toggle rewrite at runtime; root-fixes the recurring SessionStart
+  nag. Verified via `-Harvest` dry-run (CHANGED-UP → nothing to harvest).
+- Decision (no code change): harvest reading the live `~/.claude` disk is the intended design, not a
+  `.gitignore` bug — `.gitignore` filters noise out of the git repo at commit/push, not out of the
+  folder, so the scanner reading the disk 1:1 is correct; the ship skill's stage-by-name is the filter.
+
 ## [2026-07-17 18:00] ingest | Session note — single-pass release flow, s.ship-cc-tlkit (v1.19.0)
 - Session: [[syntheses/2026-07-17-session-single-pass-release-flow]]
 - New skill `s.ship-cc-tlkit`: conducts the whole round-trip in one pass (harvest → docs authored in the repo → one gate → commit + push → deploy down); replaces the six-step prose close-out runbook

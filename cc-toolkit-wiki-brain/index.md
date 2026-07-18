@@ -1,7 +1,7 @@
 # Global Brain — Index
 
 The cross-project knowledge well. Deploys to every machine via `cc-toolkit`.
-Last updated: 2026-07-17.
+Last updated: 2026-07-18.
 
 ## Concepts
 
@@ -35,3 +35,4 @@ How the toolkit has failed — open questions with evidence attached, **not** se
 - [[syntheses/2026-07-16-session-harness-zone-and-wiki-detection]] — dual charter + `harness/` zone, stale invariant amended, `/s.wiki` bootstrap footgun fixed (v1.15.0–v1.16.0)
 - [[syntheses/2026-07-17-session-bootstrap-self-guard]] — `s.wiki` Bootstrap Step 0 safety gate: refuse to scaffold into a populated target (incident Q2, v1.18.0)
 - [[syntheses/2026-07-17-session-single-pass-release-flow]] — `s.ship-cc-tlkit` single-pass release conductor; STATUS ledger removed + CHANGELOG frozen (retrieve-don't-duplicate); incident Q5 answered at root (v1.19.0)
+- [[syntheses/2026-07-18-session-settings-drift-runtime-keys]] — `settings.json` drift root-fixed (`model`/`effortLevel` added to runtime-key ignore list); harvest-reads-disk-then-filter-at-commit confirmed as intended design, not a bug (v1.20.0)

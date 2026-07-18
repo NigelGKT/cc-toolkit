@@ -73,11 +73,15 @@ $MachinePluginsDir = Join-Path $ClaudeHome 'plugins'
 # actually depends on one (a plugin's marketplace is the segment after its last '@').
 $DefaultMarketplaces = @('claude-plugins-official')
 
-# Keys Claude Code writes into settings.json as runtime plugin state (appended + the whole
-# file reordered on every deploy's plugin hydration). Ignored when comparing settings.json,
-# the same way the gitignored ~/.claude/plugins/ runtime bytes are - plugin intent lives in
-# plugins.json, not here. Extend this list if new runtime keys appear.
-$SettingsRuntimeKeys = @('enabledPlugins', 'extraKnownMarketplaces')
+# Keys Claude Code writes into settings.json as runtime state, dropped when comparing it so
+# their churn never registers as unharvested drift:
+#   - enabledPlugins / extraKnownMarketplaces: plugin hydration appends these + reorders the
+#     whole file on every deploy; plugin intent lives in plugins.json, not here (the same way
+#     the gitignored ~/.claude/plugins/ runtime bytes are excluded).
+#   - model / effortLevel: rewritten in-place by /model and the effort toggle every session,
+#     so they drift per-machine by design - machine-local runtime prefs, not shared config.
+# Extend this list if new runtime keys appear.
+$SettingsRuntimeKeys = @('enabledPlugins', 'extraKnownMarketplaces', 'model', 'effortLevel')
 
 # Header + prerequisite checks: skipped for -Check (must be silent + side-effect-free,
 # since it runs from a SessionStart hook on every launch).
