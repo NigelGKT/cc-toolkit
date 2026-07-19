@@ -1,7 +1,7 @@
 # Global Brain — Index
 
 The cross-project knowledge well. Deploys to every machine via `cc-toolkit`.
-Last updated: 2026-07-18.
+Last updated: 2026-07-19.
 
 ## Concepts
 
@@ -21,6 +21,8 @@ Self-documentation of the Claude Code toolkit itself — see [[harness/README|ha
 - [[harness/harness-overview]] — anchor note: meta-map of the whole `~/.claude` tooling (with flowchart)
 - [[harness/memory-architecture]] — the two memory systems (harness auto-memory vs. the three-tier project convention) and the routing rule between them
 - [[harness/skills-catalog]] — `s.wiki`, `s.wrap-up`, `s.goal-run`, `s.ship-cc-tlkit`, and the `obsidian@obsidian-skills` plugin bundle: triggers + flows
+- [[harness/session-lifecycle]] — plan mode, the Explore/Plan subagent split, and the one-task-per-session → checkpoint → `/clear` cadence (with flowchart)
+- [[harness/hooks-and-permissions]] — hook mechanics, the settings.json/settings.local.json split, the permission allow/deny model, and the statusline (pass 2)
 
 ## Incidents
 
@@ -32,6 +34,7 @@ How the toolkit has failed — open questions with evidence attached, **not** se
 
 - [[syntheses/2026-07-10-session-plugin-harvest]] — plugin harvest + hydrate for cc-toolkit (v1.8.0)
 - [[syntheses/2026-07-15-session-harvest-systematization]] — file harvest (-Harvest) + direction-aware audit + drift-check hook + settings.json semantic compare (v1.12.0–v1.13.0)
+- [[syntheses/2026-07-15-session-three-tier-memory-architecture]] — three-tier memory convention (CLAUDE.md/STATUS.md/wiki brain) adopted by cc-toolkit itself (v1.14.0) — *backfilled 2026-07-19*
 - [[syntheses/2026-07-16-session-harness-zone-and-wiki-detection]] — dual charter + `harness/` zone, stale invariant amended, `/s.wiki` bootstrap footgun fixed (v1.15.0–v1.16.0)
 - [[syntheses/2026-07-17-session-bootstrap-self-guard]] — `s.wiki` Bootstrap Step 0 safety gate: refuse to scaffold into a populated target (incident Q2, v1.18.0)
 - [[syntheses/2026-07-17-session-single-pass-release-flow]] — `s.ship-cc-tlkit` single-pass release conductor; STATUS ledger removed + CHANGELOG frozen (retrieve-don't-duplicate); incident Q5 answered at root (v1.19.0)

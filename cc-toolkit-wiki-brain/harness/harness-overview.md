@@ -2,7 +2,7 @@
 type: harness
 tags: [overview, architecture, meta-map, cc-toolkit]
 origin: GKT cc-toolkit (harness process mapping, 2026)
-updated: 2026-07-16
+updated: 2026-07-18
 status: stable
 ---
 
@@ -62,21 +62,19 @@ flowchart TD
 - **`settings.json`** carries the read-only permission allowlist, the `cleanup.ps1` deny rule,
   model/effort defaults, the `SessionStart` drift-check hook, and the statusline command.
   `settings.local.json` stays machine-local (never deployed) and currently adds
-  PostToolUse/Stop hooks that log to a dashboard event file.
+  PostToolUse/Stop hooks that log to a dashboard event file. Full mechanics:
+  [[hooks-and-permissions]].
 - **`plugins/`** is runtime state, never versioned directly — `plugins.json` in the repo
   records the declarative intent (marketplaces + plugin names) and deploy re-hydrates it via
   `claude plugin install`. See [[../concepts/declarative-intent-over-materialized-state]] for
   the general pattern this instantiates.
-
-## What's deliberately not here yet
-
-Session lifecycle and the rest of the harness surface — plan mode, the Explore/Plan subagent
-split, the one-task-per-session → checkpoint → `/clear` cadence, hook mechanics in depth, and
-a closer read of `settings.json`'s permission model — is scoped as a deferred second pass, not
-covered by this note or its siblings.
+- **A session's own shape** — plan mode, the Explore/Plan subagent split, and the
+  one-task-per-session → checkpoint → `/clear` cadence — is mapped in [[session-lifecycle]].
 
 ## Related
 - [[memory-architecture]]
 - [[skills-catalog]]
+- [[session-lifecycle]]
+- [[hooks-and-permissions]]
 - [[../playbooks/cc-toolkit-deploy-lifecycle]]
 - [[../wiki-schema]]

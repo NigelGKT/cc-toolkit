@@ -13,7 +13,8 @@ Part of the [[../wiki-schema|global brain]] — coloured 🔵 in the graph view.
 - The deploy/harvest lifecycle mechanics (beyond the day-to-day runbook already in
   [[../playbooks/cc-toolkit-deploy-lifecycle]] — this is architecture, that is the runbook).
 - The skills catalog: what each global skill does and what triggers it.
-- Session-lifecycle and harness-surface notes (hooks, settings, subagents) — pass 2, not yet written.
+- Session-lifecycle and harness-surface notes (plan mode, subagents, hooks, permissions,
+  statusline) — see [[session-lifecycle]] and [[hooks-and-permissions]].
 
 ## What does NOT belong here
 

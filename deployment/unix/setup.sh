@@ -12,29 +12,52 @@
 #
 #   Never touches secrets (.credentials.json, settings.local.json) or runtime state.
 #   All toolkit items are text; CRLF/LF differences are normalised before hashing so
-#   the audit reports real drift only.
+#   the audit reports real drift only. settings.json is compared *semantically* (a
+#   canonical-JSON hash with runtime keys stripped - see SETTINGS_RUNTIME_KEYS below) so
+#   plugin-hydration churn and the model/effortLevel runtime fields never register as drift.
 #
 # Plugins (parity with setup.ps1): Claude Code plugins live in ~/.claude/plugins/, which is
 # self-updating, machine-path-laden runtime state (gitignored). We version the *intent* in
 # plugins.json (marketplaces + plugin names) and re-hydrate the bytes on deploy via the
 # claude CLI. JSON is parsed with node (a guaranteed prerequisite), so no jq dependency.
 #
+# --harvest is the inverse of deploy, for FILES: lists toolkit files on this machine but not
+# in the repo (NEW-UP) or edited here and newer than the repo (CHANGED-UP). Dry-run by
+# default; add --force to copy them into the repo working tree. Never harvests secrets.
+#
+# --check is a fast, silent, once-per-day drift verdict meant for a SessionStart hook: prints
+# one line if local files aren't yet harvested, otherwise nothing. Side-effect-free.
+#
+# CC_TOOLKIT_HOME anchor: every deploy writes this script's resolved repo path to
+# ~/.claude/.cc-toolkit-home (a marker file, not a shell-rc export, so it doesn't depend on
+# which shell re-sources what). Nothing on Unix reads it yet - there is no drift-check.sh /
+# hook wiring here, unlike Windows - but it's the anchor a future one needs.
+#
 # Usage:
 #   ./setup.sh                   # clean machine -> deploy; existing config -> audit only
 #   ./setup.sh --force           # deploy over an existing config (backup taken first)
 #   ./setup.sh --harvest-plugins # regenerate plugins.json from installed plugins, then stop
+#   ./setup.sh --harvest         # list local toolkit files not yet in the repo (dry-run)
+#   ./setup.sh --harvest --force # copy those files UP into the repo, then commit & push
+#   ./setup.sh --check           # one-line drift verdict (for a SessionStart hook)
 #
 set -euo pipefail
 
 # ── Args ────────────────────────────────────────────────────────────
 FORCE=0
 HARVEST_PLUGINS=0
+HARVEST=0
+CHECK=0
 for arg in "$@"; do
   case "$arg" in
     --force|-f|-Force) FORCE=1 ;;
     --harvest-plugins|-HarvestPlugins) HARVEST_PLUGINS=1 ;;
+    --harvest|-Harvest) HARVEST=1 ;;
+    --check|-Check) CHECK=1 ;;
     -h|--help)
-      sed -n '2,26p' "$0" | sed 's/^#\{0,1\} \{0,1\}//'
+      # Print the header comment (lines 2 through, not including, 'set -euo pipefail') -
+      # robust to the header growing/shrinking, unlike a hardcoded line range.
+      awk '/^set -euo pipefail/{exit} NR>1{print}' "$0" | sed 's/^#\{0,1\} \{0,1\}//'
       exit 0 ;;
     *) echo "Unknown argument: $arg" >&2; exit 2 ;;
   esac
@@ -71,6 +94,10 @@ MACHINE_PLUGINS_DIR="$CLAUDE_HOME/plugins"
 # Marketplaces that ship as Claude Code defaults - skip in harvest unless a listed plugin
 # actually depends on one (a plugin's marketplace is the segment after its last '@').
 DEFAULT_MARKETPLACES="claude-plugins-official"
+
+# Banner + prerequisite checks: skipped for --check (must be silent + side-effect-free,
+# since it runs from a SessionStart hook on every launch).
+if [ "$CHECK" -eq 0 ]; then
 
 say ""
 sayc "$C_CYAN" "GKT cc-toolkit setup"
@@ -132,6 +159,8 @@ fi
 
 say ""
 
+fi  # end (CHECK == 0) banner + prerequisite guard
+
 # ── Content hash that ignores line endings (CRLF vs LF) ─────────────
 # A raw byte hash flags a CRLF-checked-out clone as "different" from an LF
 # working copy even when content is identical. Toolkit items are all text,
@@ -145,6 +174,48 @@ sha_sum() {
 }
 hash_file() { tr -d '\r' < "$1" | sha_sum; }
 
+# ── Cross-platform mtime (GNU stat vs BSD/macOS stat) ────────────────
+stat_mtime() { stat -c %Y "$1" 2>/dev/null || stat -f %m "$1" 2>/dev/null; }
+
+# ── Canonical-JSON compare for settings.json (mirrors setup.ps1) ─────────────────────
+# settings.json drifts after every deploy/session: plugin hydration appends
+# enabledPlugins/extraKnownMarketplaces, and /model + the effort toggle rewrite
+# model/effortLevel locally every session. Strip those runtime keys, sort object keys
+# recursively, hash the canonical form - so only real content changes register as drift.
+# Keep SETTINGS_RUNTIME_KEYS in sync with setup.ps1's $SettingsRuntimeKeys.
+settings_canonical_json() {
+  have_node || return 1
+  node -e '
+    const fs = require("fs");
+    const SETTINGS_RUNTIME_KEYS = ["enabledPlugins", "extraKnownMarketplaces", "model", "effortLevel"];
+    function canon(o) {
+      if (Array.isArray(o)) return o.map(canon);
+      if (o && typeof o === "object") {
+        const out = {};
+        for (const k of Object.keys(o).sort()) out[k] = canon(o[k]);
+        return out;
+      }
+      return o;
+    }
+    try {
+      const j = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+      for (const k of SETTINGS_RUNTIME_KEYS) delete j[k];
+      process.stdout.write(JSON.stringify(canon(j)));
+    } catch (e) { process.exit(1); }
+  ' "$1" 2>/dev/null
+}
+
+# Route settings.json through the canonical-JSON hash; everything else uses the raw content
+# hash. Falls back to the raw hash if node is missing or the file fails to parse.
+compare_hash() {
+  local rel="$1" path="$2" canon
+  if [ "$rel" = "settings.json" ] && canon="$(settings_canonical_json "$path")" && [ -n "$canon" ]; then
+    printf '%s' "$canon" | sha_sum
+  else
+    hash_file "$path"
+  fi
+}
+
 # ── Enumerate files under a toolkit item (file or dir) as "rel<TAB>full" ──
 list_item_files() {
   local base="$1" item="$2" p="$1/$2"
@@ -156,6 +227,56 @@ list_item_files() {
       printf '%s\t%s\n' "${f#"$base"/}" "$f"
     done
   fi
+}
+
+# ── Classify drift between this machine (~/.claude) and the repo, per toolkit file ────
+# Shared by the audit, --harvest, and --check so all three agree. Content-hash is
+# authoritative for "differs"; direction (local/repo newer) is a HINT from mtime and can
+# mislead right after a fresh 'git clone' (which resets mtimes).
+#   harvest UP  = new-local + local-newer      deploy DOWN = new-repo + repo-newer
+# Populates the DRIFT_* globals; callers read those after calling this.
+compute_drift() {
+  # Suspended for the whole function, not just risky lines: this is a pure read-only
+  # comparison (nothing here mutates state), and it is built entirely out of
+  # naturally-nonzero comparisons/tests feeding nested pipelines and process substitutions
+  # (find | while read, command substitutions inside if/elif). set -e's exemptions for
+  # AND-OR lists and loop conditions do not reliably cover every nesting here across bash
+  # implementations - suspend it for the duration rather than chase exit-status edge cases.
+  set +e
+  DRIFT_INSYNC=0
+  DRIFT_LOCAL_NEWER=()
+  DRIFT_REPO_NEWER=()
+  DRIFT_NEW_LOCAL=()
+  DRIFT_NEW_REPO=()
+
+  local item rel full dest repo_time loc_time
+  for item in "${TOOLKIT_ITEMS[@]}"; do
+    while IFS=$'\t' read -r rel full; do
+      [ -z "$rel" ] && continue
+      dest="$CLAUDE_HOME/$rel"
+      if [ ! -e "$dest" ]; then
+        DRIFT_NEW_REPO+=("$rel")
+      elif [ "$(compare_hash "$rel" "$full")" != "$(compare_hash "$rel" "$dest")" ]; then
+        repo_time="$(stat_mtime "$full")"
+        loc_time="$(stat_mtime "$dest")"
+        if [ -n "$loc_time" ] && [ -n "$repo_time" ] && [ "$loc_time" -gt "$repo_time" ]; then
+          DRIFT_LOCAL_NEWER+=("$rel")
+        else
+          DRIFT_REPO_NEWER+=("$rel")
+        fi
+      else
+        DRIFT_INSYNC=$((DRIFT_INSYNC + 1))
+      fi
+    done < <(list_item_files "$REPO_ROOT" "$item")
+  done
+
+  for item in "${TOOLKIT_ITEMS[@]}"; do
+    while IFS=$'\t' read -r rel full; do
+      [ -z "$rel" ] && continue
+      [ ! -e "$REPO_ROOT/$rel" ] && DRIFT_NEW_LOCAL+=("$rel")
+    done < <(list_item_files "$CLAUDE_HOME" "$item")
+  done
+  set -e
 }
 
 # ── Plugin state helpers (declarative: marketplaces + plugin names only) ──
@@ -245,6 +366,92 @@ if [ "$HARVEST_PLUGINS" -eq 1 ]; then
   exit 0
 fi
 
+# ── Harvest mode (files): pull machine-side toolkit files UP into the repo ────────
+# The inverse of deploy. Lists machine-unique (NEW-UP) + machine-newer (CHANGED-UP)
+# toolkit files; with --force, copies them into the repo working tree for you to review,
+# commit & push. Dry-run otherwise. Never harvests secrets.
+if [ "$HARVEST" -eq 1 ]; then
+  if [ ! -d "$CLAUDE_HOME" ]; then
+    sayc "$C_YELLOW" "No $CLAUDE_HOME found - nothing to harvest."
+    exit 0
+  fi
+  compute_drift
+
+  if [ "${#DRIFT_NEW_LOCAL[@]}" -eq 0 ] && [ "${#DRIFT_LOCAL_NEWER[@]}" -eq 0 ]; then
+    sayc "$C_GREEN" "Nothing to harvest - the repo already has this machine's toolkit files."
+    if [ "${#DRIFT_REPO_NEWER[@]}" -gt 0 ]; then
+      sayc "$C_YELLOW" "  (Note: ${#DRIFT_REPO_NEWER[@]} file(s) are NEWER in the repo - deploy DOWN with --force.)"
+    fi
+    exit 0
+  fi
+
+  sayc "$C_MAGENTA" "Harvest candidates (this machine -> repo):"
+  if [ "${#DRIFT_NEW_LOCAL[@]}" -gt 0 ]; then
+    sayc "$C_MAGENTA" "  NEW-UP (here, not in the repo):"
+    for f in "${DRIFT_NEW_LOCAL[@]}"; do sayc "$C_MAGENTA" "    + $f"; done
+  fi
+  if [ "${#DRIFT_LOCAL_NEWER[@]}" -gt 0 ]; then
+    sayc "$C_MAGENTA" "  CHANGED-UP (edited here, newer than the repo):"
+    for f in "${DRIFT_LOCAL_NEWER[@]}"; do sayc "$C_MAGENTA" "    ^ $f"; done
+  fi
+  if [ "${#DRIFT_REPO_NEWER[@]}" -gt 0 ]; then
+    sayc "$C_YELLOW" "  SKIPPED - repo is newer (deploy DOWN instead, do not harvest):"
+    for f in "${DRIFT_REPO_NEWER[@]}"; do sayc "$C_YELLOW" "    v $f"; done
+  fi
+  say ""
+
+  if [ "$FORCE" -eq 0 ]; then
+    sayc "$C_YELLOW" "DRY RUN - nothing copied. Re-run with --force to copy the above UP into the repo."
+    exit 0
+  fi
+
+  copied=0
+  for rel in "${DRIFT_NEW_LOCAL[@]}" "${DRIFT_LOCAL_NEWER[@]}"; do
+    skip=0
+    for nt in "${NEVER_TOUCH[@]}"; do [ "$rel" = "$nt" ] && skip=1; done
+    [ "$skip" -eq 1 ] && continue
+    src="$CLAUDE_HOME/$rel"
+    dst="$REPO_ROOT/$rel"
+    mkdir -p "$(dirname "$dst")"
+    cp -f "$src" "$dst"
+    sayc "$C_GREEN" "  harvested: $rel"
+    copied=$((copied + 1))
+  done
+  say ""
+  sayc "$C_GREEN" "Harvested $copied file(s) into $REPO_ROOT"
+  sayc "$C_YELLOW" "Review, then commit & push to record them in cc-toolkit."
+  exit 0
+fi
+
+# ── Check mode: fast, throttled drift verdict for a SessionStart hook ─────────────
+# Prints ONE line to stdout (so a hook captures it) and exits. Throttled to once/day via a
+# marker file so it adds no latency to repeated session starts. Errors are swallowed - a
+# hook must never break a session start. Nothing on Unix invokes this today (no
+# drift-check.sh / hook wiring exists yet), but it's ready to be called once that lands.
+if [ "$CHECK" -eq 1 ]; then
+  set +e
+  if [ -d "$CLAUDE_HOME" ]; then
+    marker="$CLAUDE_HOME/.toolkit-drift-check"
+    run_check=1
+    if [ -f "$marker" ]; then
+      marker_time="$(stat_mtime "$marker" 2>/dev/null)"
+      now="$(date +%s)"
+      if [ -n "$marker_time" ] && [ $((now - marker_time)) -lt 86400 ]; then
+        run_check=0
+      fi
+    fi
+    if [ "$run_check" -eq 1 ]; then
+      compute_drift
+      up=$(( ${#DRIFT_NEW_LOCAL[@]} + ${#DRIFT_LOCAL_NEWER[@]} ))
+      if [ "$up" -gt 0 ]; then
+        echo "cc-toolkit: $up local file(s) not yet harvested -> run: setup.sh --harvest"
+      fi
+      date -u +%Y-%m-%dT%H:%M:%SZ > "$marker" 2>/dev/null
+    fi
+  fi
+  exit 0
+fi
+
 # ── Detect an existing Claude Code config ───────────────────────────
 existing=0
 if [ -d "$CLAUDE_HOME" ]; then
@@ -259,46 +466,31 @@ if [ "$existing" -eq 1 ] && [ "$FORCE" -eq 0 ]; then
   sayc "$C_YELLOW" "AUDIT MODE - nothing will be changed. Reviewing differences..."
   say ""
 
-  conflicts=(); additions=(); harvest=(); insync=0
+  compute_drift
 
-  # repo -> machine (what cc-toolkit would add or change)
-  for item in "${TOOLKIT_ITEMS[@]}"; do
-    while IFS=$'\t' read -r rel full; do
-      [ -z "$rel" ] && continue
-      dest="$CLAUDE_HOME/$rel"
-      if [ ! -e "$dest" ]; then
-        additions+=("$rel")
-      elif [ "$(hash_file "$full")" != "$(hash_file "$dest")" ]; then
-        conflicts+=("$rel")
-      else
-        insync=$((insync + 1))
-      fi
-    done < <(list_item_files "$REPO_ROOT" "$item")
-  done
-
-  # machine -> repo (machine-unique = harvest candidates)
-  for item in "${TOOLKIT_ITEMS[@]}"; do
-    while IFS=$'\t' read -r rel full; do
-      [ -z "$rel" ] && continue
-      [ ! -e "$REPO_ROOT/$rel" ] && harvest+=("$rel")
-    done < <(list_item_files "$CLAUDE_HOME" "$item")
-  done
-
-  say "  In sync (identical): $insync file(s)"
+  say "  In sync (identical): $DRIFT_INSYNC file(s)"
   say ""
-  if [ "${#conflicts[@]}" -gt 0 ]; then
-    sayc "$C_RED" "  CONFLICTS - this machine differs from cc-toolkit (review before overwriting):"
-    for c in "${conflicts[@]}"; do sayc "$C_RED" "    ~ $c"; done
+  # Direction (LOCAL/REPO newer) is a HINT from mtime; the content-hash is authoritative for
+  # "differs". A fresh 'git clone' resets mtimes, so on a just-cloned machine treat REPO NEWER
+  # with care.
+  if [ "${#DRIFT_LOCAL_NEWER[@]}" -gt 0 ]; then
+    sayc "$C_MAGENTA" "  LOCAL NEWER - edited here, newer than cc-toolkit (harvest UP):"
+    for f in "${DRIFT_LOCAL_NEWER[@]}"; do sayc "$C_MAGENTA" "    ^ $f"; done
     say ""
   fi
-  if [ "${#harvest[@]}" -gt 0 ]; then
-    sayc "$C_MAGENTA" "  HARVEST CANDIDATES - present here, NOT in cc-toolkit (pull these UP first):"
-    for h in "${harvest[@]}"; do sayc "$C_MAGENTA" "    + $h"; done
+  if [ "${#DRIFT_NEW_LOCAL[@]}" -gt 0 ]; then
+    sayc "$C_MAGENTA" "  HARVEST CANDIDATES - present here, NOT in cc-toolkit (harvest UP):"
+    for f in "${DRIFT_NEW_LOCAL[@]}"; do sayc "$C_MAGENTA" "    + $f"; done
     say ""
   fi
-  if [ "${#additions[@]}" -gt 0 ]; then
+  if [ "${#DRIFT_REPO_NEWER[@]}" -gt 0 ]; then
+    sayc "$C_RED" "  REPO NEWER - cc-toolkit differs and is newer (deploy DOWN with --force):"
+    for f in "${DRIFT_REPO_NEWER[@]}"; do sayc "$C_RED" "    v $f"; done
+    say ""
+  fi
+  if [ "${#DRIFT_NEW_REPO[@]}" -gt 0 ]; then
     sayc "$C_GREEN" "  WOULD BE ADDED from cc-toolkit (new on this machine):"
-    for a in "${additions[@]}"; do sayc "$C_GREEN" "    > $a"; done
+    for f in "${DRIFT_NEW_REPO[@]}"; do sayc "$C_GREEN" "    > $f"; done
     say ""
   fi
 
@@ -328,10 +520,11 @@ if [ "$existing" -eq 1 ] && [ "$FORCE" -eq 0 ]; then
   fi
 
   sayc "$C_CYAN" "Next steps:"
-  say "  1. HARVEST  - copy anything above worth keeping into the cc-toolkit repo, commit & push."
-  say "               (for plugins: run --harvest-plugins to regenerate plugins.json, then commit & push.)"
-  say "  2. REVIEW   - decide whether cc-toolkit's version should win on each CONFLICT."
-  say "  3. DEPLOY   - re-run with --force to install (a backup is taken first)."
+  say "  1. HARVEST UP - LOCAL NEWER + HARVEST CANDIDATES are local work not yet in cc-toolkit."
+  say "                  Run: ./deployment/unix/setup.sh --harvest   (dry-run; add --force to copy up)"
+  say "                  (plugins: --harvest-plugins regenerates plugins.json.) Then commit & push."
+  say "  2. DEPLOY DOWN - REPO NEWER + WOULD BE ADDED come from cc-toolkit; re-run with --force to"
+  say "                  install them here (a backup is taken first)."
   say ""
   sayc "$C_YELLOW" "No changes were made."
   exit 0
@@ -372,6 +565,18 @@ for secret in "${NEVER_TOUCH[@]}"; do
     sayc "$C_RED" "  WARNING: $secret exists in the repo - it must never be committed."
   fi
 done
+
+# ── Persist the repo anchor ────────────────────────────────────────
+# A marker file (not a shell-rc export) lets a future drift-check.sh or Unix invocation of
+# s.ship-cc-tlkit locate this clone without a hardcoded path or depending on which shell
+# re-sources what. Mirrors setup.ps1's CC_TOOLKIT_HOME (a User-scope env var there) - same
+# anchor role, Unix-appropriate mechanism. No-op when already correct.
+anchor_file="$CLAUDE_HOME/.cc-toolkit-home"
+if [ ! -f "$anchor_file" ] || [ "$(cat "$anchor_file" 2>/dev/null)" != "$REPO_ROOT" ]; then
+  printf '%s\n' "$REPO_ROOT" > "$anchor_file"
+  sayc "$C_GREEN" "  set anchor -> $anchor_file ($REPO_ROOT)"
+fi
+export CC_TOOLKIT_HOME="$REPO_ROOT"
 
 # ── Hydrate plugins from the declarative manifest (marketplace add + install) ──
 # Re-creates plugins/ from intent; never version-controlled. Idempotent (re-adding a

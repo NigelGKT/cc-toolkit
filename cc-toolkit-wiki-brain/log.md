@@ -67,5 +67,11 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 ## [2026-07-16 00:00] manual | Dual charter — add harness/ zone for toolkit self-documentation
 - Schema: [[wiki-schema]] amended — dual charter declared, `harness` page type registered, 2 house-style carve-outs added, curation invariant amended (local editing via `-Harvest` now explicitly supported)
 - New: [[harness/README]], [[harness/harness-overview]], [[harness/memory-architecture]], [[harness/skills-catalog]]
+
+## [2026-07-15 23:43] ingest | Session note — three-tier memory architecture (v1.14.0) — *backfilled 2026-07-19*
+- Session: [[syntheses/2026-07-15-session-three-tier-memory-architecture]]
+- Reconstructed from commit `2378a73`, not written live — this session sat in the gap between the 2026-07-10 and 2026-07-15 notes
+- Global `CLAUDE.md` gained the `## Memory architecture` contract (CLAUDE.md/STATUS.md/wiki brain, split by rate-of-change); `s.wiki` bootstrap now scaffolds `STATUS.md` + wires a `## Memory` pointer; `s.wrap-up` orients on and writes to `STATUS.md`
+- Its own STATUS.md flagged two open threads at the time (settings.json harvest decision, setup.sh parity) — both finally closed 2026-07-18/19
 - Updated: [[playbooks/cc-toolkit-deploy-lifecycle]] — general file-harvest runbook, drift-check hook runbook, invariant amendment, harness cross-links
 - Graph: `.obsidian/graph.json` — new colour group for `path:harness/`
