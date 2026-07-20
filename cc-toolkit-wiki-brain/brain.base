@@ -1,0 +1,34 @@
+filters:
+  or:
+    - file.inFolder("concepts")
+    - file.inFolder("playbooks")
+    - file.inFolder("harness")
+    - file.inFolder("incidents")
+    - file.inFolder("syntheses")
+    - file.inFolder("sources")
+
+properties:
+  type:
+    displayName: Type
+  status:
+    displayName: Status
+  updated:
+    displayName: Updated
+  origin:
+    displayName: Origin
+  tags:
+    displayName: Tags
+
+views:
+  - type: table
+    name: "All Pages"
+    groupBy:
+      property: type
+      direction: ASC
+    order:
+      - file.name
+      - type
+      - status
+      - updated
+      - origin
+      - tags

@@ -1,6 +1,7 @@
 ---
 type: synthesis
 tags: [session-note, backfilled]
+origin: GKT cc-toolkit (three-tier memory architecture, 2026)
 sources: []
 updated: 2026-07-19
 status: stable

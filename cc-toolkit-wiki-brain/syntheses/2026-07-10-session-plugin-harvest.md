@@ -1,6 +1,7 @@
 ---
 type: synthesis
 tags: [session-note]
+origin: GKT cc-toolkit (plugin harvest + hydrate, 2026)
 sources: []
 updated: 2026-07-10
 status: stable

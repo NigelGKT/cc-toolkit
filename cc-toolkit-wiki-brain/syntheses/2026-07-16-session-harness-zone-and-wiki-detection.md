@@ -1,6 +1,7 @@
 ---
 type: synthesis
 tags: [session-note]
+origin: GKT cc-toolkit (harness zone + wiki detection, 2026)
 sources: []
 updated: 2026-07-16
 status: stable
@@ -23,11 +24,11 @@ schema amendment, not a build.
   (`concepts/`, `playbooks/`) + harness self-doc (`harness/`). Registered the `harness` page type
   and two house-style carve-outs: harness pages *may* name toolkit internals (their subject *is*
   the toolkit), and `## Transfer note` is optional for self-doc rather than mandatory.
-- **`harness/` zone (v1.15.0)** — 4 notes: [[harness/harness-overview]] (anchor meta-map with
-  flowchart), [[harness/memory-architecture]] (the two memory systems — harness auto-memory vs.
-  the three-tier convention — and the routing rule between them), [[harness/skills-catalog]],
-  [[harness/README]]. Graph colour group added for `path:harness/`.
-- **Deploy playbook extended (v1.15.0)** — [[playbooks/cc-toolkit-deploy-lifecycle]] predated the
+- **`harness/` zone (v1.15.0)** — 4 notes: [[../harness/harness-overview]] (anchor meta-map with
+  flowchart), [[../harness/memory-architecture]] (the two memory systems — harness auto-memory vs.
+  the three-tier convention — and the routing rule between them), [[../harness/skills-catalog]],
+  [[../harness/README]]. Graph colour group added for `path:harness/`.
+- **Deploy playbook extended (v1.15.0)** — [[../playbooks/cc-toolkit-deploy-lifecycle]] predated the
   `-Harvest` feature (v1.12–v1.13), so it lacked the general file-harvest runbook and the
   drift-check-hook mechanics. Both added, plus a session close-out runbook.
 - **Stale invariant amended (v1.15.0)** — "never edit the deployed copy" (written before

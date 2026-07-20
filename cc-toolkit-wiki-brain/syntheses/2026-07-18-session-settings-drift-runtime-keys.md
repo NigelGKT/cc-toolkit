@@ -1,6 +1,7 @@
 ---
 type: synthesis
 tags: [session-note]
+origin: GKT cc-toolkit (settings drift + runtime keys, 2026)
 sources: []
 updated: 2026-07-18
 status: stable

@@ -12,30 +12,28 @@
 
 ## Where we are
 
-- **Uncommitted, ready to ship as v1.22.0 — Obsidian vault fully tracked; workflow split confirmed.**
-  - **Obsidian settings now ride to every machine.** `.gitignore`'s old `.obsidian/*` exclusion
-    (everything ignored except `graph.json`) is removed — `app.json`, `appearance.json`,
-    `core-plugins.json`, and `workspace.json` are now tracked too, so a fresh clone opens the wiki
-    with the same workspace layout, not a blank one. Deliberate tradeoff accepted: `workspace.json`
-    is genuine session state and will show as changed more often than the others; worth it for
-    cross-machine consistency.
-  - **Workflow split decision (no code change) — keep both paths.** Discussed collapsing to a
-    single "edit `~/.claude` → harvest → ship" workflow for consistency, since that's what thread
-    #2's "disk mirrors disk" framing implied was the only path. Decided **against** collapsing it:
-    editing the repo directly (this session's own pattern) is the documented-preferred path for
-    deliberate toolkit-development sessions — it skips harvest entirely since the repo already is
-    the source of truth, and the repo's own git working tree is a free safety net while editing.
-    Editing `~/.claude` + harvesting stays the right path for incidental edits picked up during
-    unrelated project sessions, where the repo isn't in reach. Confirms `wiki-schema.md`'s existing
-    "prefer curating [the repo]... local editing supported via `-Harvest`" language rather than
-    changing it — recorded here so it isn't re-litigated as an inconsistency later.
-- **Prior: v1.21.0** — harness pass 2 (2 new self-doc pages) + `setup.sh` parity (incl. a real
+- **Uncommitted, ready to ship as v1.23.0 — first wiki-brain lint pass + log.md restructure + brain.base.**
+  - **Lint pass on `cc-toolkit-wiki-brain`** — 9 findings, 7 fixed (missing `origin:` on all 8
+    syntheses, a missing log `Session:` line, a backfilled log entry for harness pass 2, an index
+    pointer, a wikilink-style fix, one new promoted concept); 2 rejected on review (a "misfiled
+    playbook" call that turned out to be intentional design, and an "unconditional harvest" claim
+    that's actually about `s.ship-cc-tlkit`'s own wording, not a wiki defect — see open threads).
+    Cross-checked the repo clone against `~/.claude/cc-toolkit-wiki-brain` by MD5: zero pre-existing
+    drift found.
+  - **`log.md` re-sorted** to strict newest-first order (previously scattered out of sequence).
+  - **`brain.base` added** — a live, sortable/filterable Obsidian Base table over every page's
+    `type`/`status`/`updated`/`origin`/`tags`. `log.md` stays the append-only event record; the Base
+    is a current-state view, not a replacement.
+- **Prior: v1.22.0** — Obsidian vault config fully tracked (`app.json`/`appearance.json`/
+  `core-plugins.json`/`workspace.json` alongside `graph.json`); repo-vs-harvest workflow split
+  confirmed, not collapsed. Shipped.
+- **Before that: v1.21.0** — harness pass 2 (2 new self-doc pages) + `setup.sh` parity (incl. a real
   `set -e`/nested-pipeline bug fix, found by actually executing the script) + v1.14.0 session-note
   backfill. Run `git log` for the full commit trail.
 
 ## Next step
 
-- **Ship v1.22.0** via `/s.ship-cc-tlkit`.
+- **Ship v1.23.0** via `/s.ship-cc-tlkit`.
 
 ## Open threads
 

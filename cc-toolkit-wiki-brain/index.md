@@ -9,8 +9,11 @@ Last updated: 2026-07-20.
 - [[concepts/convert-at-edge-display-lens]] — present values in a chosen unit without mutating state
 - [[concepts/cost-layer-as-derived-view]] — layer commissions/fees as a derived view; never mutate gross
 - [[concepts/declarative-intent-over-materialized-state]] — version declarative intent; rehydrate heavy/machine-specific state on deploy (npm lockfile pattern)
+- [[concepts/harvest-mirrors-disk-filter-at-commit]] — a mirroring scanner reads its source 1:1, unfiltered; exclusion rules apply once, at commit/publish, not at scan time
 
 ## Playbooks
+
+Client-agnostic lessons and checklists — see [[playbooks/README|playbooks/]] for the zone's charter.
 
 - [[playbooks/cc-toolkit-deploy-lifecycle]] — the toolkit's own runbook: spin up → work → grow the brain → clean exit (with flowchart)
 
@@ -40,3 +43,4 @@ How the toolkit has failed — open questions with evidence attached, **not** se
 - [[syntheses/2026-07-17-session-single-pass-release-flow]] — `s.ship-cc-tlkit` single-pass release conductor; STATUS ledger removed + CHANGELOG frozen (retrieve-don't-duplicate); incident Q5 answered at root (v1.19.0)
 - [[syntheses/2026-07-18-session-settings-drift-runtime-keys]] — `settings.json` drift root-fixed (`model`/`effortLevel` added to runtime-key ignore list); harvest-reads-disk-then-filter-at-commit confirmed as intended design, not a bug (v1.20.0)
 - [[syntheses/2026-07-20-session-obsidian-tracking-and-workflow-decision]] — Obsidian `.gitignore` scope corrected (all vault settings now tracked, not just graph.json); repo-vs-harvest workflow split confirmed, not collapsed (v1.22.0)
+- [[syntheses/2026-07-20-session-wiki-brain-lint-and-log-restructure]] — first `s.wiki` lint pass on this brain (9 findings, 7 fixed); `log.md` re-sorted to strict chronological order; `brain.base` added for a live sortable/filterable page-state view (v1.23.0)

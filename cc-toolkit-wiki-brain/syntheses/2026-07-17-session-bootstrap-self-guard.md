@@ -1,6 +1,7 @@
 ---
 type: synthesis
 tags: [session-note]
+origin: GKT cc-toolkit (bootstrap self-guard, 2026)
 sources: []
 updated: 2026-07-17
 status: stable

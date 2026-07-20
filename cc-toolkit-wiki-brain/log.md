@@ -1,24 +1,19 @@
 # Global Brain — Log
 
-Chronological record of brain operations. Format: `## [YYYY-MM-DD HH:MM] <op> | <subject>`
-where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
+Chronological record of brain operations, newest first. Format: `## [YYYY-MM-DD HH:MM] <op> | <subject>`
+where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}. For a live, sortable/filterable view
+of current page state (type/status/updated/origin/tags), see [[brain.base]] — this log stays the
+append-only record of *what happened and why*, which a Base view can't reconstruct.
 
-## [2026-07-06 00:00] bootstrap | Global brain — cross-project distilled patterns & lessons
+## [2026-07-20 14:44] ingest | Session note — wiki brain lint pass + log.md restructure + brain.base
+- Session: [[syntheses/2026-07-20-session-wiki-brain-lint-and-log-restructure]]
 
-## [2026-07-06 00:00] promote | Seed 3 concepts from Propex PTA wiki (scrubbed to patterns)
-- New: [[concepts/fifo-vs-vwap-cost-basis]], [[concepts/convert-at-edge-display-lens]], [[concepts/cost-layer-as-derived-view]]
-- Origin: Propex Trading (PNL analytics engine, 2026)
-- Scrub: client name, file/function/line references, and raw rate data removed from bodies; origin retained in frontmatter
+## [2026-07-20 13:50] lint | 9 findings (4 high, 4 medium, 1 low) — 7 fixed, 2 findings rejected on review (misfile call on the deploy-lifecycle playbook: harness/README already cross-references it as the intentional runbook counterpart to its architecture note; the "unconditional harvest" wording issue lives in `s.ship-cc-tlkit` itself, not in any wiki page)
 
-## [2026-07-10 23:51] promote | Concept — declarative intent over materialized state
-- New: [[concepts/declarative-intent-over-materialized-state]]
-- Origin: GKT cc-toolkit (plugin harvest + hydrate, 2026)
-
-## [2026-07-10 23:51] ingest | Session note — cc-toolkit plugin harvest + hydrate
-
-## [2026-07-15 19:00] ingest | Session note — cc-toolkit harvest systematization (v1.12.0 + v1.13.0)
-- Session: [[syntheses/2026-07-15-session-harvest-systematization]]
-- Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
+## [2026-07-20 13:50] promote | Concept — harvest mirrors disk, filters at commit
+- New: [[concepts/harvest-mirrors-disk-filter-at-commit]]
+- Origin: GKT cc-toolkit (harvest/deploy scanner design, 2026)
+- Closes the promote-candidate thread flagged in the 2026-07-16 and 2026-07-18 session notes
 
 ## [2026-07-20 13:00] ingest | Session note — Obsidian tracking + workflow split decision (v1.22.0)
 - Session: [[syntheses/2026-07-20-session-obsidian-tracking-and-workflow-decision]]
@@ -33,6 +28,10 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - Decision (no code change): harvest reading the live `~/.claude` disk is the intended design, not a
   `.gitignore` bug — `.gitignore` filters noise out of the git repo at commit/push, not out of the
   folder, so the scanner reading the disk 1:1 is correct; the ship skill's stage-by-name is the filter.
+
+## [2026-07-18 16:00] ingest | Harness pass 2 — session lifecycle + hooks/permissions/statusline — *backfilled 2026-07-20*
+- New: [[harness/session-lifecycle]], [[harness/hooks-and-permissions]]
+- Closes the "Harness pass 2" deferred item from the 2026-07-16 session note
 
 ## [2026-07-17 18:00] ingest | Session note — single-pass release flow, s.ship-cc-tlkit (v1.19.0)
 - Session: [[syntheses/2026-07-17-session-single-pass-release-flow]]
@@ -80,3 +79,21 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - Its own STATUS.md flagged two open threads at the time (settings.json harvest decision, setup.sh parity) — both finally closed 2026-07-18/19
 - Updated: [[playbooks/cc-toolkit-deploy-lifecycle]] — general file-harvest runbook, drift-check hook runbook, invariant amendment, harness cross-links
 - Graph: `.obsidian/graph.json` — new colour group for `path:harness/`
+
+## [2026-07-15 19:00] ingest | Session note — cc-toolkit harvest systematization (v1.12.0 + v1.13.0)
+- Session: [[syntheses/2026-07-15-session-harvest-systematization]]
+- Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
+
+## [2026-07-10 23:51] promote | Concept — declarative intent over materialized state
+- New: [[concepts/declarative-intent-over-materialized-state]]
+- Origin: GKT cc-toolkit (plugin harvest + hydrate, 2026)
+
+## [2026-07-10 23:51] ingest | Session note — cc-toolkit plugin harvest + hydrate
+- Session: [[syntheses/2026-07-10-session-plugin-harvest]]
+
+## [2026-07-06 00:00] promote | Seed 3 concepts from Propex PTA wiki (scrubbed to patterns)
+- New: [[concepts/fifo-vs-vwap-cost-basis]], [[concepts/convert-at-edge-display-lens]], [[concepts/cost-layer-as-derived-view]]
+- Origin: Propex Trading (PNL analytics engine, 2026)
+- Scrub: client name, file/function/line references, and raw rate data removed from bodies; origin retained in frontmatter
+
+## [2026-07-06 00:00] bootstrap | Global brain — cross-project distilled patterns & lessons

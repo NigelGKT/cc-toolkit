@@ -14,7 +14,8 @@ project specifics.
 cc-toolkit-wiki-brain/
 ├── wiki-schema.md     — how this vault specializes s.wiki (read this first)
 ├── index.md           — table of contents
-├── log.md             — chronological op log
+├── log.md             — chronological op log (what happened, and why)
+├── brain.base         — live sortable/filterable table of every page's current state (Obsidian Bases)
 ├── concepts/          — transferable patterns 🟢
 ├── playbooks/         — client-agnostic lessons & checklists 🟣
 ├── syntheses/         — filed answers to recurring questions 🟡

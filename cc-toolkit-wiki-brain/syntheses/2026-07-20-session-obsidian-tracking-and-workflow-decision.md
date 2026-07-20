@@ -1,6 +1,7 @@
 ---
 type: synthesis
 tags: [session-note]
+origin: GKT cc-toolkit (obsidian tracking + workflow decision, 2026)
 sources: []
 updated: 2026-07-20
 status: stable

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "harness/harness-overview.md",
+                "file": "log.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "harness-overview"
+              "title": "log"
             }
           }
         ]
@@ -201,6 +201,7 @@
   },
   "active": "a841813fe16bb987",
   "lastOpenFiles": [
+    "harness/harness-overview.md",
     "log.md.tmp.49612.c5251da7c7f0",
     "index.md.tmp.49612.83988d6834bf",
     "syntheses/2026-07-20-session-obsidian-tracking-and-workflow-decision.md",
@@ -213,7 +214,6 @@
     "harness/README.md",
     "harness/memory-architecture.md",
     "harness/hooks-and-permissions.md",
-    "harness/harness-overview.md",
     "playbooks/cc-toolkit-deploy-lifecycle.md.tmp.14852.9315df2c37b9",
     "concepts/declarative-intent-over-materialized-state.md",
     "syntheses/2026-07-10-session-plugin-harvest.md",
