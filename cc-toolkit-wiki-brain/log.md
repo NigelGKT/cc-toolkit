@@ -20,6 +20,11 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}.
 - Session: [[syntheses/2026-07-15-session-harvest-systematization]]
 - Promote candidate flagged (local↔source sync needs a harvest-up path + drift detection); not yet filed
 
+## [2026-07-20 13:00] ingest | Session note — Obsidian tracking + workflow split decision (v1.22.0)
+- Session: [[syntheses/2026-07-20-session-obsidian-tracking-and-workflow-decision]]
+- `.gitignore`: removed the `.obsidian/*` exclusion — `app.json`/`appearance.json`/`core-plugins.json`/`workspace.json` now tracked alongside `graph.json`, so a fresh clone opens the wiki with the same workspace layout
+- Decided (no code change): keep both editing workflows (repo-direct for toolkit-dev sessions, `~/.claude`+harvest for incidental edits) rather than collapsing to one — confirms existing `wiki-schema.md` guidance rather than changing it
+
 ## [2026-07-18 16:53] ingest | Session note — settings.json drift root-fix + harvest-reads-disk decision (v1.20.0)
 - Session: [[syntheses/2026-07-18-session-settings-drift-runtime-keys]]
 - `setup.ps1`: `model` + `effortLevel` added to `$SettingsRuntimeKeys` — the only two keys that ever

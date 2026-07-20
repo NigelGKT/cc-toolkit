@@ -5,34 +5,37 @@
 > (`git log`, `git status`), not here; per-session synthesis and the changelog archive live in
 > `cc-toolkit-wiki-brain/syntheses/`. This project's `CLAUDE.md` **is** the global operating
 > contract (deployed to `~/.claude`), so it carries no project pointer — this file is it.
-> Last updated: 2026-07-19.
+> Last updated: 2026-07-20.
 >
 > *(Scope split: this file = cc-toolkit's live working state. Meta-roadmap / phase direction lives
 > in the `fde-toolkit` brain.)*
 
 ## Where we are
 
-- **Uncommitted, ready to ship as v1.21.0 — harness pass 2 + setup.sh parity + v1.14.0 backfill.**
-  Three threads closed in one sitting:
-  - **Harness pass 2**: two new self-documentation pages, [[harness/session-lifecycle]] (plan
-    mode, the Explore/Plan subagent split, checkpoint → `/clear`) and
-    [[harness/hooks-and-permissions]] (hook mechanics, the settings.json/settings.local.json
-    split, the permission allow/deny model, statusline) — closes the gap `harness-overview.md`
-    flagged since v1.15.0.
-  - **`setup.sh` parity**: ported `--harvest`/`--harvest --force`, `--check`, the semantic
-    `settings.json` compare (mirrors v1.20.0's `$SettingsRuntimeKeys` fix), and the
-    `CC_TOOLKIT_HOME` anchor (a marker file, not a shell-rc export) — plus a real `set -e` +
-    nested-pipeline bug found and fixed along the way (every run crashed without it). Verified
-    by actually executing every mode against a disposable fixture, not just reading the diff.
-  - **v1.14.0 backfill**: [[syntheses/2026-07-15-session-three-tier-memory-architecture]]
-    reconstructed from commit `2378a73`, marked as backfilled.
-- **Prior: v1.20.0** — settings.json drift root-fixed via `$SettingsRuntimeKeys`; harvest-reads-disk
-  confirmed as intended design. Run `git log` for the full commit trail.
+- **Uncommitted, ready to ship as v1.22.0 — Obsidian vault fully tracked; workflow split confirmed.**
+  - **Obsidian settings now ride to every machine.** `.gitignore`'s old `.obsidian/*` exclusion
+    (everything ignored except `graph.json`) is removed — `app.json`, `appearance.json`,
+    `core-plugins.json`, and `workspace.json` are now tracked too, so a fresh clone opens the wiki
+    with the same workspace layout, not a blank one. Deliberate tradeoff accepted: `workspace.json`
+    is genuine session state and will show as changed more often than the others; worth it for
+    cross-machine consistency.
+  - **Workflow split decision (no code change) — keep both paths.** Discussed collapsing to a
+    single "edit `~/.claude` → harvest → ship" workflow for consistency, since that's what thread
+    #2's "disk mirrors disk" framing implied was the only path. Decided **against** collapsing it:
+    editing the repo directly (this session's own pattern) is the documented-preferred path for
+    deliberate toolkit-development sessions — it skips harvest entirely since the repo already is
+    the source of truth, and the repo's own git working tree is a free safety net while editing.
+    Editing `~/.claude` + harvesting stays the right path for incidental edits picked up during
+    unrelated project sessions, where the repo isn't in reach. Confirms `wiki-schema.md`'s existing
+    "prefer curating [the repo]... local editing supported via `-Harvest`" language rather than
+    changing it — recorded here so it isn't re-litigated as an inconsistency later.
+- **Prior: v1.21.0** — harness pass 2 (2 new self-doc pages) + `setup.sh` parity (incl. a real
+  `set -e`/nested-pipeline bug fix, found by actually executing the script) + v1.14.0 session-note
+  backfill. Run `git log` for the full commit trail.
 
 ## Next step
 
-- **Ship v1.21.0** via `/s.ship-cc-tlkit`, or continue to the next open thread first — both viable,
-  nothing is blocking either way.
+- **Ship v1.22.0** via `/s.ship-cc-tlkit`.
 
 ## Open threads
 

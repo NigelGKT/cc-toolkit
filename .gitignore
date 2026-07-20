@@ -25,10 +25,6 @@ settings.local.json
 .claude/plans/
 .claude/worktrees/
 
-# === Obsidian vault — keep only the graph colour-groups, ignore volatile UI/app state ===
-**/.obsidian/*
-!**/.obsidian/graph.json
-
 # === OS / editor noise ===
 Thumbs.db
 Desktop.ini
