@@ -533,7 +533,7 @@ fi
 # ── Lightweight backup of exactly the toolkit files we may overwrite ─
 mkdir -p "$CLAUDE_HOME"
 stamp="$(date +%Y%m%d-%H%M%S)"
-backup="$CLAUDE_HOME.backup-$stamp"
+backup="$HOME/.claude backups/$stamp"
 backed_up=0
 for item in "${TOOLKIT_ITEMS[@]}"; do
   p="$CLAUDE_HOME/$item"

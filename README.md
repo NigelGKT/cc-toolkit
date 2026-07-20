@@ -76,7 +76,7 @@ What happens depends on the machine:
   ```
 
   `-Force` takes a lightweight backup of the toolkit files to
-  `~/.claude.backup-<timestamp>` first, then merge-copies the toolkit in and hydrates the
+  `~/.claude backups/<timestamp>` first, then merge-copies the toolkit in and hydrates the
   plugins listed in `plugins.json` (`claude plugin marketplace add` + `install` — idempotent).
 
 ## Plugins — install locally, harvest up

@@ -457,7 +457,7 @@ if (-not (Test-Path $ClaudeHome)) {
     New-Item -ItemType Directory -Path $ClaudeHome -Force | Out-Null
 }
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$backup = "$ClaudeHome.backup-$stamp"
+$backup = Join-Path "$env:USERPROFILE\.claude backups" $stamp
 $backedUp = $false
 foreach ($item in $ToolkitItems) {
     $p = Join-Path $ClaudeHome $item

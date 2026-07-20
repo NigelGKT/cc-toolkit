@@ -70,7 +70,7 @@ cd cc-toolkit
 # 3. HARVEST first (only if the audit lists HARVEST CANDIDATES): copy anything machine-only
 #    UP into the repo, commit, push. Skipping this loses that machine's customizations.
 
-# 4. DEPLOY. Backs up existing toolkit files to ~/.claude.backup-<ts>, then merges
+# 4. DEPLOY. Backs up existing toolkit files to ~/.claude backups/<ts>, then merges
 #    (never mirror-deletes; never touches secrets or settings.local.json).
 .\deployment\windows\setup.ps1 -Force
 
