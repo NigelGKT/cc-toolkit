@@ -6,7 +6,6 @@ filters:
     - file.inFolder("incidents")
     - file.inFolder("syntheses")
     - file.inFolder("sources")
-
 properties:
   type:
     displayName: Type
@@ -18,10 +17,9 @@ properties:
     displayName: Origin
   tags:
     displayName: Tags
-
 views:
   - type: table
-    name: "All Pages"
+    name: All Pages
     groupBy:
       property: type
       direction: ASC
@@ -32,3 +30,6 @@ views:
       - updated
       - origin
       - tags
+    sort:
+      - property: updated
+        direction: DESC

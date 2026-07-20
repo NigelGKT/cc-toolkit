@@ -12,28 +12,29 @@
 
 ## Where we are
 
-- **Uncommitted, ready to ship as v1.23.0 — first wiki-brain lint pass + log.md restructure + brain.base.**
-  - **Lint pass on `cc-toolkit-wiki-brain`** — 9 findings, 7 fixed (missing `origin:` on all 8
-    syntheses, a missing log `Session:` line, a backfilled log entry for harness pass 2, an index
-    pointer, a wikilink-style fix, one new promoted concept); 2 rejected on review (a "misfiled
-    playbook" call that turned out to be intentional design, and an "unconditional harvest" claim
-    that's actually about `s.ship-cc-tlkit`'s own wording, not a wiki defect — see open threads).
-    Cross-checked the repo clone against `~/.claude/cc-toolkit-wiki-brain` by MD5: zero pre-existing
-    drift found.
-  - **`log.md` re-sorted** to strict newest-first order (previously scattered out of sequence).
-  - **`brain.base` added** — a live, sortable/filterable Obsidian Base table over every page's
-    `type`/`status`/`updated`/`origin`/`tags`. `log.md` stays the append-only event record; the Base
-    is a current-state view, not a replacement.
-- **Prior: v1.22.0** — Obsidian vault config fully tracked (`app.json`/`appearance.json`/
-  `core-plugins.json`/`workspace.json` alongside `graph.json`); repo-vs-harvest workflow split
-  confirmed, not collapsed. Shipped.
-- **Before that: v1.21.0** — harness pass 2 (2 new self-doc pages) + `setup.sh` parity (incl. a real
-  `set -e`/nested-pipeline bug fix, found by actually executing the script) + v1.14.0 session-note
-  backfill. Run `git log` for the full commit trail.
+- **Uncommitted, ready to ship as v1.24.0 — 2 new refactor/dedup playbooks + s.wrap-up promotion auto-apply.**
+  - **New playbooks**: `behaviour-preserving-refactor-workflow` (tiered refactor loop — recon the
+    live counterpart, re-verify stale audits, per-item equivalence harness, human gate, merge
+    boundaries; distilled from the I06 three-tier engine refactor) and
+    `prove-empty-diff-before-consolidating` (upstream/downstream reachability checklist before
+    merging diverged duplicates; distilled from BUG-W9a). Both Propex-origin, scrubbed.
+  - **`s.wrap-up` Part C** — concept/playbook promotions now **applied on the single confirmation**
+    (writes the page + index + log entry) instead of staying flag-only for manual follow-up.
+    Code/skill/CLAUDE.md promotions still stay flag-only. Codifies the pattern both playbooks above
+    already used.
+  - **`brain.base`** — minor formatting cleanup + default sort by `updated` (DESC).
+- **Prior: v1.23.0** — wiki-brain lint pass (9 findings, 7 fixed), `log.md` re-sorted newest-first,
+  `brain.base` added. Shipped (`e998b35`).
+- **Before that: v1.22.0** — Obsidian vault config fully tracked; repo-vs-harvest workflow split
+  confirmed, not collapsed. Shipped. Run `git log` for the full commit trail.
 
 ## Next step
 
-- **Ship v1.23.0** via `/s.ship-cc-tlkit`.
+- **Ship v1.24.0** via `/s.ship-cc-tlkit`.
+- **Follow-up (flagged, not started):** audit whether "prefer the repo clone" should remain the
+  *stated default* in `wiki-schema.md`/`cc-toolkit-deploy-lifecycle.md` — recent practice (both
+  playbooks above, the new `s.wrap-up` write path) increasingly authors `~/.claude`-first, and the
+  2026-07-20 13:00 decision already chose to keep both workflows rather than collapse to one.
 
 ## Open threads
 

@@ -5,6 +5,23 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}. For a live, so
 of current page state (type/status/updated/origin/tags), see [[brain.base]] — this log stays the
 append-only record of *what happened and why*, which a Base view can't reconstruct.
 
+## [2026-07-20 20:15] ingest | Session note — refactor/dedup playbooks + s.wrap-up promotion auto-apply
+- Session: [[syntheses/2026-07-20-session-refactor-playbooks-and-promotion-autoapply]]
+
+## [2026-07-20 20:00] promote | Playbook — behaviour-preserving refactor workflow
+- New page: [[playbooks/behaviour-preserving-refactor-workflow]]
+- Updated: [[index]] (Playbooks entry added)
+- Origin: Propex Trading (PNL analytics engine) — distilled from the I06 refactor audit's three
+  tiers (Tier A/B/C, sessions 2026-07-04/07-06/07-20): tiered risk sequencing, live-counterpart
+  recon/isolation, stale-audit re-verification, per-item behavioural-equivalence harnesses
+  (mutation-tested), and the human-gate/merge-boundary rules. Scrubbed to a general pattern;
+  automation counterpart is the `s.goal-run` skill.
+
+## [2026-07-20 19:45] promote | Playbook — prove the diff is empty before consolidating diverged duplicates
+- New page: [[playbooks/prove-empty-diff-before-consolidating]]
+- Updated: [[index]] (Playbooks entry added)
+- Origin: Propex Trading (PNL analytics webapp) — distilled from the BUG-W9a de-dup, where two diverged VWAP null-checks proved behaviourally identical (serializer never omits the key upstream; shared `fmt()` collapses null+undefined downstream). Scrubbed to a general upstream/downstream reachability checklist.
+
 ## [2026-07-20 14:44] ingest | Session note — wiki brain lint pass + log.md restructure + brain.base
 - Session: [[syntheses/2026-07-20-session-wiki-brain-lint-and-log-restructure]]
 

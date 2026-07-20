@@ -16,6 +16,8 @@ Last updated: 2026-07-20.
 Client-agnostic lessons and checklists — see [[playbooks/README|playbooks/]] for the zone's charter.
 
 - [[playbooks/cc-toolkit-deploy-lifecycle]] — the toolkit's own runbook: spin up → work → grow the brain → clean exit (with flowchart)
+- [[playbooks/prove-empty-diff-before-consolidating]] — before merging diverged duplicate code, prove the observable diff is empty: trace upstream (can the divergent input occur?) + downstream (does a shared formatter already normalize it?) before consolidating
+- [[playbooks/behaviour-preserving-refactor-workflow]] — tiered, equivalence-verified loop for refactoring a live system without changing observable behaviour: recon the live counterpart, re-verify stale audits, per-item verify+commit, human gate for what no harness covers
 
 ## Harness
 
@@ -44,3 +46,4 @@ How the toolkit has failed — open questions with evidence attached, **not** se
 - [[syntheses/2026-07-18-session-settings-drift-runtime-keys]] — `settings.json` drift root-fixed (`model`/`effortLevel` added to runtime-key ignore list); harvest-reads-disk-then-filter-at-commit confirmed as intended design, not a bug (v1.20.0)
 - [[syntheses/2026-07-20-session-obsidian-tracking-and-workflow-decision]] — Obsidian `.gitignore` scope corrected (all vault settings now tracked, not just graph.json); repo-vs-harvest workflow split confirmed, not collapsed (v1.22.0)
 - [[syntheses/2026-07-20-session-wiki-brain-lint-and-log-restructure]] — first `s.wiki` lint pass on this brain (9 findings, 7 fixed); `log.md` re-sorted to strict chronological order; `brain.base` added for a live sortable/filterable page-state view (v1.23.0)
+- [[syntheses/2026-07-20-session-refactor-playbooks-and-promotion-autoapply]] — 2 new playbooks (behaviour-preserving refactor workflow, prove-empty-diff-before-consolidating); `s.wrap-up` Part C now applies prose promotions on confirmation instead of flag-only (v1.24.0)

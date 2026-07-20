@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "log.md",
+                "file": "playbooks/prove-empty-diff-before-consolidating.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "log"
+              "title": "prove-empty-diff-before-consolidating"
             }
           }
         ]
@@ -53,7 +53,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:s.wiki",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -201,6 +201,18 @@
   },
   "active": "a841813fe16bb987",
   "lastOpenFiles": [
+    "index.md.tmp.142276.dc2380304cff",
+    "playbooks/behaviour-preserving-refactor-workflow.md",
+    "log.md",
+    "index.md.tmp.50100.4e852231a2c3",
+    "brain.base",
+    "playbooks/prove-empty-diff-before-consolidating.md",
+    "incidents/README.md",
+    "harness/README.md",
+    "index.md",
+    "harness/skills-catalog.md",
+    "syntheses/2026-07-20-session-wiki-brain-lint-and-log-restructure.md",
+    "concepts/harvest-mirrors-disk-filter-at-commit.md",
     "harness/harness-overview.md",
     "log.md.tmp.49612.c5251da7c7f0",
     "index.md.tmp.49612.83988d6834bf",
@@ -210,8 +222,6 @@
     "wiki-schema.md",
     "concepts/convert-at-edge-display-lens.md",
     "README.md",
-    "harness/skills-catalog.md",
-    "harness/README.md",
     "harness/memory-architecture.md",
     "harness/hooks-and-permissions.md",
     "playbooks/cc-toolkit-deploy-lifecycle.md.tmp.14852.9315df2c37b9",
@@ -219,8 +229,6 @@
     "syntheses/2026-07-10-session-plugin-harvest.md",
     "index.md.tmp.14852.daf4da71f810",
     "index.md.tmp.14852.5e91adcf44d0",
-    "playbooks/cc-toolkit-deploy-lifecycle.md.tmp.14852.512cc4e255b5",
-    "log.md",
-    "index.md"
+    "playbooks/cc-toolkit-deploy-lifecycle.md.tmp.14852.512cc4e255b5"
   ]
 }
