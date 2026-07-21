@@ -56,10 +56,11 @@ $RepoRoot   = (Resolve-Path (Join-Path $ScriptDir '..\..')).Path
 $ClaudeHome = Join-Path $env:USERPROFILE '.claude'
 
 # Toolkit items this repo deploys (relative to repo root).
+# 'scripts' holds reusable cross-project utility scripts that skills call into (e.g. s.venv-setup).
 # 'cc-toolkit-wiki-brain' is the global-brain s.wiki vault (playbooks are folded inside it).
 # 'statusline.js' backs the settings.json statusLine command (context %/model/cwd/branch).
 # 'drift-check.ps1' backs the settings.json SessionStart hook (calls setup.ps1 -Check).
-$ToolkitItems = @('CLAUDE.md', 'settings.json', 'skills', 'cc-toolkit-wiki-brain', 'statusline.js', 'drift-check.ps1')
+$ToolkitItems = @('CLAUDE.md', 'settings.json', 'skills', 'scripts', 'cc-toolkit-wiki-brain', 'statusline.js', 'drift-check.ps1')
 
 # Things we must NEVER deploy or overwrite (secrets / local overrides).
 $NeverTouch = @('.credentials.json', 'settings.local.json')

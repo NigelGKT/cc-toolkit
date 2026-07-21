@@ -1,7 +1,7 @@
 # Global Brain — Index
 
 The cross-project knowledge well. Deploys to every machine via `cc-toolkit`.
-Last updated: 2026-07-20.
+Last updated: 2026-07-21.
 
 ## Concepts
 
@@ -18,6 +18,7 @@ Client-agnostic lessons and checklists — see [[playbooks/README|playbooks/]] f
 - [[playbooks/cc-toolkit-deploy-lifecycle]] — the toolkit's own runbook: spin up → work → grow the brain → clean exit (with flowchart)
 - [[playbooks/prove-empty-diff-before-consolidating]] — before merging diverged duplicate code, prove the observable diff is empty: trace upstream (can the divergent input occur?) + downstream (does a shared formatter already normalize it?) before consolidating
 - [[playbooks/behaviour-preserving-refactor-workflow]] — tiered, equivalence-verified loop for refactoring a live system without changing observable behaviour: recon the live counterpart, re-verify stale audits, per-item verify+commit, human gate for what no harness covers
+- [[playbooks/venv-setup-workflow]] — Python venv/requirements.txt setup via `scripts/new-pyproject.ps1` + `/s.venv-setup`: import-scan-driven sync, one-package-at-a-time install, delete-and-rerun on breakage
 
 ## Harness
 
@@ -47,3 +48,4 @@ How the toolkit has failed — open questions with evidence attached, **not** se
 - [[syntheses/2026-07-20-session-obsidian-tracking-and-workflow-decision]] — Obsidian `.gitignore` scope corrected (all vault settings now tracked, not just graph.json); repo-vs-harvest workflow split confirmed, not collapsed (v1.22.0)
 - [[syntheses/2026-07-20-session-wiki-brain-lint-and-log-restructure]] — first `s.wiki` lint pass on this brain (9 findings, 7 fixed); `log.md` re-sorted to strict chronological order; `brain.base` added for a live sortable/filterable page-state view (v1.23.0)
 - [[syntheses/2026-07-20-session-refactor-playbooks-and-promotion-autoapply]] — 2 new playbooks (behaviour-preserving refactor workflow, prove-empty-diff-before-consolidating); `s.wrap-up` Part C now applies prose promotions on confirmation instead of flag-only (v1.24.0)
+- [[syntheses/2026-07-21-session-venv-setup-centralization]] — `new-pyproject.ps1` folded into cc-toolkit as `scripts/new-pyproject.ps1` + new `s.venv-setup` skill; `README.md` staleness fixed (repo-first workflow, folder tree); new `venv-setup-workflow` playbook (v1.25.0)

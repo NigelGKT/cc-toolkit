@@ -1,15 +1,15 @@
 ---
 type: harness
-tags: [skills, s.wiki, s.wrap-up, s.goal-run, s.ship-cc-tlkit, obsidian, catalog]
+tags: [skills, s.wiki, s.wrap-up, s.goal-run, s.ship-cc-tlkit, s.venv-setup, obsidian, catalog]
 origin: GKT cc-toolkit (harness process mapping, 2026)
-updated: 2026-07-17
+updated: 2026-07-21
 status: stable
 ---
 
 # Skills Catalog
 
 What each global skill (`~/.claude/skills/`, deployed by `cc-toolkit`) does, what triggers it,
-and its internal flow. Four user-authored skills plus one installed plugin bundle.
+and its internal flow. Five user-authored skills plus one installed plugin bundle.
 
 ## `s.wiki` — the wiki engine
 
@@ -106,6 +106,19 @@ there ships nothing.
 
 Hard boundaries: never `git add -A`, force-push, merge, delete files, touch secrets, or run outside
 the toolkit loop.
+
+## `s.venv-setup` — Python venv setup for any project
+
+**Triggers:** "set up a venv", "initialize a Python project environment", "create a virtual
+environment", explicit `/s.venv-setup`.
+
+Thin wrapper — all logic lives in the bundled `scripts/new-pyproject.ps1`, which this skill
+locates (two levels up from its own base directory, since `scripts/` and `skills/` are sibling
+deployed folders) and runs against the current project folder. Creates `.venv`, scans the
+project's actual imports to install/sync `requirements.txt` (adds new, removes stale), and adds
+`.gitignore` + VS Code interpreter config. Idempotent — safe to re-run on a project that already
+has a `.venv`. Windows/PowerShell only. See
+[[../playbooks/venv-setup-workflow]] for the full mechanics and gotchas.
 
 ## `obsidian@obsidian-skills` — installed plugin bundle
 

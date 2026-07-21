@@ -5,32 +5,37 @@
 > (`git log`, `git status`), not here; per-session synthesis and the changelog archive live in
 > `cc-toolkit-wiki-brain/syntheses/`. This project's `CLAUDE.md` **is** the global operating
 > contract (deployed to `~/.claude`), so it carries no project pointer — this file is it.
-> Last updated: 2026-07-20.
+> Last updated: 2026-07-21.
 >
 > *(Scope split: this file = cc-toolkit's live working state. Meta-roadmap / phase direction lives
 > in the `fde-toolkit` brain.)*
 
 ## Where we are
 
-- **Uncommitted, ready to ship as v1.24.0 — 2 new refactor/dedup playbooks + s.wrap-up promotion auto-apply.**
-  - **New playbooks**: `behaviour-preserving-refactor-workflow` (tiered refactor loop — recon the
-    live counterpart, re-verify stale audits, per-item equivalence harness, human gate, merge
-    boundaries; distilled from the I06 three-tier engine refactor) and
-    `prove-empty-diff-before-consolidating` (upstream/downstream reachability checklist before
-    merging diverged duplicates; distilled from BUG-W9a). Both Propex-origin, scrubbed.
-  - **`s.wrap-up` Part C** — concept/playbook promotions now **applied on the single confirmation**
-    (writes the page + index + log entry) instead of staying flag-only for manual follow-up.
-    Code/skill/CLAUDE.md promotions still stay flag-only. Codifies the pattern both playbooks above
-    already used.
-  - **`brain.base`** — minor formatting cleanup + default sort by `updated` (DESC).
-- **Prior: v1.23.0** — wiki-brain lint pass (9 findings, 7 fixed), `log.md` re-sorted newest-first,
-  `brain.base` added. Shipped (`e998b35`).
-- **Before that: v1.22.0** — Obsidian vault config fully tracked; repo-vs-harvest workflow split
-  confirmed, not collapsed. Shipped. Run `git log` for the full commit trail.
+- **Uncommitted, ready to ship as v1.25.0 — venv-setup centralized into cc-toolkit + README fixed.**
+  - **`new-pyproject.ps1` folded in** from the standalone `pyvenv_scripts`/`NigelGKT/scripts`
+    project — now lives at `scripts/new-pyproject.ps1`, a new top-level home for reusable
+    cross-project utility scripts (distinct from `deployment/`, which is toolkit self-maintenance
+    only). New `skills/s.venv-setup/` wraps it. `scripts` added to the deploy contract
+    (`ToolkitItems`/`TOOLKIT_ITEMS`) in both `setup.ps1` and `setup.sh`.
+  - **New playbook** — `venv-setup-workflow` (import-scan-driven requirements.txt sync, gotchas).
+    `harness/skills-catalog.md` updated with the new skill entry.
+  - **`README.md` corrected** — was stale (still described the superseded "build locally, harvest
+    up" default and an inaccurate folder tree). Now states "prefer the repo clone" as the actual
+    current default and matches the real layout.
+  - Old `pyvenv_scripts` project left untouched — its wiki brain held no undistilled knowledge
+    (empty scaffolding only). Disposal (two separate repos, one remote-less) is a manual user
+    decision, not part of this change.
+- **Prior: v1.24.0** — 2 new refactor/dedup playbooks + `s.wrap-up` Part C promotion auto-apply.
+  Shipped (`3af2d97`), followed by a small unversioned fix (`88133c7`: redirect `-Force` deploy
+  backups to `~/.claude backups/`). Run `git log` for the full trail.
 
 ## Next step
 
-- **Ship v1.24.0** via `/s.ship-cc-tlkit`.
+- **Ship v1.25.0** via `/s.ship-cc-tlkit` (in progress).
+- **Smoke-test `/s.venv-setup`** against a real project once deployed (e.g. re-run against the
+  Bursa derivatives scraper, which already has a `.venv`) to confirm the skill's path resolution
+  works end-to-end, not just the standalone script.
 - **Follow-up (flagged, not started):** audit whether "prefer the repo clone" should remain the
   *stated default* in `wiki-schema.md`/`cc-toolkit-deploy-lifecycle.md` — recent practice (both
   playbooks above, the new `s.wrap-up` write path) increasingly authors `~/.claude`-first, and the

@@ -5,6 +5,13 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}. For a live, so
 of current page state (type/status/updated/origin/tags), see [[brain.base]] — this log stays the
 append-only record of *what happened and why*, which a Base view can't reconstruct.
 
+## [2026-07-21 13:30] promote | Playbook — Python venv setup workflow
+- New page: [[playbooks/venv-setup-workflow]]
+- Updated: [[index]] (Playbooks entry added)
+- Origin: `pyvenv_scripts`/`NigelGKT/scripts` repo's `new-pyproject.ps1` + `PY_VENV_WORKFLOW.md` —
+  folded into cc-toolkit as `scripts/new-pyproject.ps1` + the new `s.venv-setup` skill, so the
+  venv-setup tool is native to the toolkit instead of a separate referenced project.
+
 ## [2026-07-20 20:15] ingest | Session note — refactor/dedup playbooks + s.wrap-up promotion auto-apply
 - Session: [[syntheses/2026-07-20-session-refactor-playbooks-and-promotion-autoapply]]
 

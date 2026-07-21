@@ -8,23 +8,36 @@ same identity, skills, and working style follow me everywhere.
 
 ```
 cc-toolkit/
-├── CLAUDE.md          ← global operating contract (the "Mr Nigel" identity/working style)
-├── settings.json      ← global Claude Code preferences
-├── skills/            ← custom skills
-│   ├── s.wiki/        ← Obsidian-compatible knowledge wiki (source/entity/concept/synthesis)
-│   └── s.wrap-up/     ← end-of-session ritual (summarise + promote generalizable lessons)
-├── statusline.js      ← status line (context %/model/cwd/branch); backs settings.json statusLine
-├── drift-check.ps1    ← SessionStart hook target: warns when local ~/.claude drifts from the repo
-├── plugins.json       ← declarative plugin manifest (marketplaces + plugin names; see below)
-├── playbooks/         ← client-agnostic lessons distilled from real project work
+├── CLAUDE.md              ← global operating contract (the "Mr Nigel" identity/working style)
+├── STATUS.md              ← live working tier: where things stand right now, next step
+├── CHANGELOG.md           ← version history archive
+├── settings.json          ← global Claude Code preferences
+├── skills/                ← custom skills (deployed)
+│   ├── s.wiki/            ← Obsidian-compatible knowledge wiki (source/entity/concept/synthesis)
+│   ├── s.wrap-up/         ← end-of-session ritual (summarise + promote generalizable lessons)
+│   ├── s.goal-run/        ← turn a bounded plan into a self-paced autonomous /loop run
+│   ├── s.ship-cc-tlkit/   ← single-pass release conductor for this toolkit itself
+│   └── s.venv-setup/      ← Python venv/requirements.txt setup for any project folder
+├── scripts/               ← reusable cross-project utility scripts (deployed); skills call into these
+│   └── new-pyproject.ps1  ← creates .venv, syncs requirements.txt, .gitignore, VS Code interpreter
+├── cc-toolkit-wiki-brain/ ← global brain (deployed): concepts/, playbooks/, harness/, incidents/, syntheses/
+├── statusline.js          ← status line (context %/model/cwd/branch); backs settings.json statusLine
+├── drift-check.ps1        ← SessionStart hook target: warns when local ~/.claude drifts from the repo
+├── plugins.json           ← declarative plugin manifest (marketplaces + plugin names; see below)
 └── deployment/
-    └── windows/
-        └── setup.ps1  ← audit / deploy / harvest / check installer (see below)
+    ├── windows/
+    │   ├── setup.ps1      ← audit / deploy / harvest / check installer (see below)
+    │   └── cleanup.ps1    ← gated clean-exit / client hand-back
+    └── unix/
+        └── setup.sh       ← Unix/VPS parity of setup.ps1
 ```
 
 The repo is **flat by design**: each top-level item maps 1:1 to a file/folder inside
-`~/.claude`. `setup.ps1` copies exactly these items (`CLAUDE.md`, `settings.json`,
-`skills`, `cc-toolkit-wiki-brain`, `statusline.js`, `drift-check.ps1`) — nothing else.
+`~/.claude`. `setup.ps1` / `setup.sh` copy exactly the items named in their `ToolkitItems`
+list (`CLAUDE.md`, `settings.json`, `skills`, `scripts`, `cc-toolkit-wiki-brain`,
+`statusline.js`, `drift-check.ps1`) — nothing else. Renaming or adding a top-level deployed
+folder means updating that list in **both** scripts, in lockstep, or it silently stops
+deploying.
 
 **Plugins are the one exception to "copy".** `~/.claude/plugins/` is runtime state
 (self-updating, machine-specific paths) and stays gitignored — so instead of copying the
@@ -93,11 +106,16 @@ git add plugins.json && git commit -m "harvest: <plugin>" && git push
 On the next `setup.ps1 -Force` (any machine) the plugin re-installs automatically. The
 `~/.claude/plugins/` folder itself is never committed — only `plugins.json`.
 
-## Files — edit locally, harvest up
+## Files — prefer the repo clone; harvest catches local edits
 
-The natural workflow is to build a skill / tweak `CLAUDE.md` / grow the brain **locally in
-`~/.claude` first**, then pull it UP into the repo. `-Harvest` is the file-level inverse of
-deploy — the counterpart to `-HarvestPlugins`:
+**Prefer curating in the repo clone.** GitHub is the source of truth; build a skill, tweak
+`CLAUDE.md`, or grow the brain **directly in this repo**, then `git push` and deploy DOWN with
+`setup.ps1 -Force` so it rides to every machine. This superseded the older "build locally in
+`~/.claude` first" habit — that path still works (see below), it's just no longer the default.
+
+If you do end up editing the **deployed** copy in `~/.claude` (mid-session, or on a machine
+where that's more convenient), harvest it UP before the next `-Force` deploy overwrites it —
+`-Harvest` is the file-level inverse of deploy, the counterpart to `-HarvestPlugins`:
 
 ```powershell
 .\deployment\windows\setup.ps1 -Harvest          # dry-run: lists local files not yet in the repo
@@ -143,7 +161,12 @@ skills are available.
 
 The `s.wrap-up` ritual flags anything generalizable at the end of a session
 ("Part C — promote"): a reusable skill, a global CLAUDE.md rule, or a client-agnostic
-lesson. Those land back here (`skills/`, `CLAUDE.md`, `playbooks/`), get committed, and
-ride to every machine on the next deploy. The toolkit compounds over time.
+lesson. Prose promotions (concepts/playbooks) are written straight into
+`cc-toolkit-wiki-brain/` on confirmation; code/skill/CLAUDE.md promotions stay flagged for
+manual follow-up. When working a **cc-toolkit session itself**, `/s.ship-cc-tlkit` is the
+single-pass close-out: harvest UP, author the session note + `STATUS.md` in the repo, one
+consolidated gate, commit, push, then deploy DOWN — so the change rides to every machine in
+one pass. See `cc-toolkit-wiki-brain/playbooks/cc-toolkit-deploy-lifecycle.md` for the full
+runbook. The toolkit compounds over time.
 
 See `CHANGELOG.md` for version history.
