@@ -102,7 +102,17 @@ Then ONE gate, one sentence: *"Confirm to apply, or flag anything to fix."*
 
 Run straight through — no further gates:
 1. Write the changes per the tier split from Part B: refresh `STATUS.md` with the volatile state (bump its `Last updated:`, update Latest / Active task / Next step) **if it exists**, and write the stable CLAUDE.md edits. Briefly confirm what was written to each.
-1b. **Prose promotions (Part C) — write to the global brain deploy copy.** For each concept/playbook candidate, write the distilled page to `~/.claude/cc-toolkit-wiki-brain/<concepts|playbooks>/<slug>.md` (scrubbed body + `origin:` frontmatter per `cc-toolkit-wiki-brain/wiki-schema.md`), add its `index.md` entry under the matching section, and append a `## [YYYY-MM-DD HH:MM] promote | <subject>` line to that brain's `log.md`. Then print: *"⚠ Global-brain edit is in the deploy copy — run `setup.ps1 -Harvest` (or `/s.ship-cc-tlkit`) before the next `-Force` deploy, or it's lost."* Code/contract promotions are **not** written here — they stay flagged for the user to action. If there were no prose promotions, skip silently.
+1b. **Prose promotions (Part C) — author directly in the repo clone.** Resolve the toolkit repo before writing anything — same resolution order `s.ship-cc-tlkit` uses, since a session's env can be stale even when the variable is set on the machine:
+   ```powershell
+   $repo = $env:CC_TOOLKIT_HOME
+   if (-not $repo) { $repo = [Environment]::GetEnvironmentVariable('CC_TOOLKIT_HOME', 'User') }
+   if (-not $repo) { $repo = [Environment]::GetEnvironmentVariable('CC_TOOLKIT_HOME', 'Machine') }
+   ```
+   If `$repo` resolves and contains `cc-toolkit-wiki-brain/`, write each concept/playbook candidate straight into `$repo/cc-toolkit-wiki-brain/<concepts|playbooks>/<slug>.md` (scrubbed body + `origin:` frontmatter per `cc-toolkit-wiki-brain/wiki-schema.md`), add its `index.md` entry under the matching section, and append a `## [YYYY-MM-DD HH:MM] promote | <subject>` line to that brain's `log.md`. The docs are already in the repo — there is nothing to harvest; only staging/commit/push remain manual (this skill never runs git).
+
+   **Only if `CC_TOOLKIT_HOME` isn't set on this machine**, fall back to the deploy copy instead: write to `~/.claude/cc-toolkit-wiki-brain/<concepts|playbooks>/<slug>.md` with the same index/log updates, then print: *"⚠ `CC_TOOLKIT_HOME` isn't set, so this landed in the deploy copy, not the repo. Run `setup.ps1 -Force` once from your cc-toolkit clone to persist the anchor, or `setup.ps1 -Harvest` now to pull this edit up before the next `-Force` deploy overwrites it."*
+
+   Code/contract promotions are **not** written here — they stay flagged for the user to action. If there were no prose promotions, skip silently.
 2. **Codebase only** — Draft the commit message and present it as a clean copyable block:
    - Match the project's prefix/scope style exactly (`feat(v5.x):`, `fix(I03):`, `chore:` …).
    - Subject: imperative, ≤72 chars.

@@ -5,6 +5,16 @@ where `op` ∈ {bootstrap, ingest, promote, query, lint, manual}. For a live, so
 of current page state (type/status/updated/origin/tags), see [[brain.base]] — this log stays the
 append-only record of *what happened and why*, which a Base view can't reconstruct.
 
+## [2026-07-21 17:00] promote | Concept — plan-mode output durability
+- New page: [[concepts/plan-mode-output-durability]]
+- Updated: [[index]] (Concepts entry added)
+- Origin: Propex Trading Analytics — the I07 reconciliation replan lost its original 2026-05-26
+  plan-mode design file to a machine/version change, ~16 versions later. The replan's fix (freeze
+  a dated, versioned copy of any plan with lasting value into the project's own wiki) generalizes
+  beyond that project — promoted here.
+- Landed straight in the repo clone this time (not the deploy copy) — the `s.wrap-up` Part C fix
+  applied earlier this session now authors here by default via `CC_TOOLKIT_HOME`.
+
 ## [2026-07-21 13:30] promote | Playbook — Python venv setup workflow
 - New page: [[playbooks/venv-setup-workflow]]
 - Updated: [[index]] (Playbooks entry added)

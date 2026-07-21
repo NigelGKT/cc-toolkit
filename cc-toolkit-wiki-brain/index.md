@@ -10,6 +10,7 @@ Last updated: 2026-07-21.
 - [[concepts/cost-layer-as-derived-view]] — layer commissions/fees as a derived view; never mutate gross
 - [[concepts/declarative-intent-over-materialized-state]] — version declarative intent; rehydrate heavy/machine-specific state on deploy (npm lockfile pattern)
 - [[concepts/harvest-mirrors-disk-filter-at-commit]] — a mirroring scanner reads its source 1:1, unfiltered; exclusion rules apply once, at commit/publish, not at scan time
+- [[concepts/plan-mode-output-durability]] — plan-mode output is transient; freeze a dated, versioned copy into the project's own durable memory before it can be lost
 
 ## Playbooks
 
